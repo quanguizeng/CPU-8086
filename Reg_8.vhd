@@ -13,7 +13,7 @@ ENTITY register8 IS
 		shl : IN STD_LOGIC; -- shift left
 		r_bit : IN STD_LOGIC; -- new 0 bit after left shift
 		shr : IN STD_LOGIC; -- shift right
-		l_bit : IN STD_LOGIC; -- new 15 bit after right shift
+		l_bit : IN STD_LOGIC; -- new 7 bit after right shift
 		reg_out : OUT STD_LOGIC_VECTOR(7 DOWNTO 0); -- output.
 	END register8;
 ARCHITECTURE description OF register8 IS
