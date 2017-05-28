@@ -1,11 +1,16 @@
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.numeric_std.ALL;
+
 entity intr is
 	port (clk: in std_logic; -- clock signal
 			interruptLines: in std_logic_vector(7 downto 0); -- I/O interrupt lines
-			flags: in std_logic_vector(15 downto 0)); -- flags register
+			flags: in std_logic_vector(15 downto 0); -- flags register
 			
 			IVTPAddrOut: out std_logic_vector(15 downto 0); -- Interrupt Vector Table Pointer
 			IVTDisp: out std_logic_vector(15 downto 0); -- Offset of the interrupt routine
-			interrupt: out std_logic; -- Interrupt signal
+			interrupt: out std_logic -- Interrupt signal
+	);
 end entity intr;
 
 architecture behavioral of intr is
@@ -73,7 +78,7 @@ UEXT <=
 	"100" when interruptLines(4) = '1' else
 	"101" when interruptLines(5) = '1' else
 	"110" when interruptLines(6) = '1' else
-	"111" when interruptLines(7);
+	"111" when interruptLines(7) = '1';
 	
 BR_reg_in <= "0000000000000" & UEXT;
 
@@ -81,7 +86,7 @@ intrOffset <= "000000000000" & BR_reg_out(2 downto 0) & "0";
 IVTDisp <= intrOffset;
 IVTPAddrOut <= IVTP_reg_out;
 
-IVTP_reg_in <= MemoryIn;
+IVTP_reg_in <= "0000000000000000";
 
 
 

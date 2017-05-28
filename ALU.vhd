@@ -1,4 +1,4 @@
-library IEEE
+library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
@@ -30,7 +30,20 @@ architecture Behavior of ALU is
 	-- Temporary storage for multiplication
 	signal TempMul: std_logic_vector(31 downto 0);
 	
+	signal carry_val : std_logic_vector(15 DOWNTO 0);
+	signal carry_nib : std_logic_vector(3 DOWNTO 0);
+	
+	signal Result_val : std_logic_vector(15 DOWNTO 0);
+	
 begin
+
+	Result <= Result_val;
+
+	carry_val <= "0000" & "0000" & "0000" & "0001" when Carry_In = '1' else
+						"0000" & "0000" & "0000" & "0000" when Carry_In = '0';
+	
+	carry_nib <= "0001" when Carry_In = '1' else
+						"0000" when Carry_In = '0';
 
 	process(FirstArgument, SecondArgument, Operation, Temp, Carry_In) is
 	
@@ -62,17 +75,17 @@ begin
 		when ADD_OP => -- Result = Arg1 + Arg2, Flag = Carry = Overflow
 		
 			-- Add arguments
-			Temp <= std_logic_vector((unsigned(FirstArgument) + unsigned(SecondArgument) + unsigned(Carry_In)));
+			Temp <= std_logic_vector((unsigned("0" & FirstArgument) + unsigned("0" & SecondArgument) + unsigned("0" & carry_val)));
 			
 			-- Add bottom nibble
-			Temp_Nibble <= std_logic_vector(unsigned(FirstArgument(3 downto 0) + SecondArgument(3 downto 0) + unsigned(Carry_In)));
+			Temp_Nibble <= std_logic_vector(unsigned("0" & FirstArgument(3 downto 0)) + unsigned("0" & SecondArgument(3 downto 0)) + unsigned("0" & carry_nib));
 			
 			-- Save result
-			Result <= Temp(15 downto 0);
+			Result_val <= Temp(15 downto 0);
 			
 			-- Set carry and overflow
 			Carry_Out <= Temp(16);
-			Overflow <= Temp(16);
+			Overflow_Out <= Temp(16);
 			
 			
 			-- Set adjust
@@ -83,7 +96,7 @@ begin
 			-- If the result is positive
 			if (FirstArgument >= SecondArgument) then
 				-- Save result
-				Result <= std_logic_vector(unsigned(FirstArgument) - unsigned(SecondArgument));
+				Result_val <= std_logic_vector(unsigned(FirstArgument) - unsigned(SecondArgument));
 				-- No overflow
 				Overflow_Out <= '0';
 				
@@ -92,7 +105,7 @@ begin
 		
 			else
 				-- Overflow occurs
-				Result <= std_logic_vector(unsigned(SecondArgument) - unsigned(FirstArgument));
+				Result_val <= std_logic_vector(unsigned(SecondArgument) - unsigned(FirstArgument));
 				
 				-- Set overflow
 				Overflow_Out <= '1';
@@ -107,56 +120,65 @@ begin
 					Adjust_Out <= '0';
 				else
 					Adjust_Out <= '1';
-					
+			end if;	
 		when AND_OP => -- Result = Arg1 AND Arg2
-			Result <= FirstArgument and SecondArgument;
+			Result_val <= FirstArgument and SecondArgument;
 		when OR_OP => -- Result = Arg1 OR Arg2
-			Result <= FirstArgument or SecondArgument;
+			Result_val <= FirstArgument or SecondArgument;
 		when XOR_OP => -- Result = Arg1 XOR Arg2
-			Result <= FirstArgument xor SecondArgument;
+			Result_val <= FirstArgument xor SecondArgument;
 		when NOT1_OP => -- Result = NOT Arg1
-			Result <= not FirstArgument;
+			Result_val <= not FirstArgument;
 		when NOT2_OP => -- Result = NOT Arg2
-			Result <= not SecondArgument;
+			Result_val <= not SecondArgument;
 		when NEG1_OP => -- Result = -Arg1
-			Result <= std_logic_vector(-unsigned(FirstArgument));
+			Result_val <= std_logic_vector(0 - unsigned(FirstArgument));
 		when NEG2_OP => -- Result = - Arg2
-			Result <= std_logic_vector(-unsigned(SecondArgument));
+			Result_val <= std_logic_vector(0 - unsigned(SecondArgument));
 		when SHL_OP => -- Result = Arg1 | Carry_In
-			Result <= FirstArgument(14 downto 0) & Carry_In;
+			Result_val <= FirstArgument(14 downto 0) & Carry_In;
 			Carry_Out <= FirstArgument(15); 
-			if (FirstArgument(15) = Result(15)) Overflow_Out <= '0' else Overflow_Out <= '1' end if;
+			if (FirstArgument(15) = Result_val(15)) then
+				Overflow_Out <= '0';
+			else
+				Overflow_Out <= '1';
+			end if;
 		when SHR_OP => -- Result = Carry_In | Arg1
-			Result <= Carry_In & FirstArgument(15 downto 1);
+			Result_val <= Carry_In & FirstArgument(15 downto 1);
 			Carry_Out <= FirstArgument(0);
-			if (FirstArgument(15) = Result(15)) Overflow_Out <= '0' else Overflow_Out <= '1' end if;
+			if (FirstArgument(15) = Result_val(15)) then
+				Overflow_Out <= '0';
+			else
+				Overflow_Out <= '1';
+			end if;
 		when MUL_OP => -- Result = Arg1 x Arg2 N.B. It must be a cross product in a left-handed cartesian system
 			-- Multiply
 			TempMul <= std_logic_vector(unsigned(FirstArgument) * unsigned(SecondArgument));
 			
 			-- Save lower 16 bits
-			Result <= TempMul(15 downto 0);
+			Result_val <= TempMul(15 downto 0);
 			
 			-- Check for carry and overflow
-			if (unsigned(TempMul(31 downto 16)) = 0)
-				begin
-					Carry_Out <= '0';
-					Overflow_Out <= '0';
-				end
+			if (unsigned(TempMul(31 downto 16)) = 0) then
+				Carry_Out <= '0';
+				Overflow_Out <= '0';
 			else
-				begin
-					Carry_Out <= '1';
-					Overflow_out <= '1';
-				end
-			
+				Carry_Out <= '1';
+				Overflow_out <= '1';
+			end if;
+		when others =>
+			-- do SAHR
+			report "unreachable" severity failure;
 		end case;
 		
 		-- Set Parity and Sign
-		Parity_Out <= Result(0);
-		Sign_Out <= Result(15);
+		Parity_Out <= Result_val(0);
+		Sign_Out <= Result_val(15);
 		
 		-- Set Zero
-		if Result = "0000000000000000" then Zero_Out <= '1' end if;
+		if Result_val = "0000000000000000" then
+			Zero_Out <= '1';
+		end if;
 	end process;
 end Behavior;
 		

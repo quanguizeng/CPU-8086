@@ -174,14 +174,14 @@ ARCHITECTURE description OF CPU_8086 IS
 
 	COMPONENT ExecutionUnit IS
 		PORT(
-			clk: in bit; -- clock
+			clk: in std_logic; -- clock
 			firstArgCtrl: in std_logic_vector(2 downto 0); -- first ALU argument
 			secondArgCtrl: in std_logic_vector(2 downto 0); -- second ALU argument
-			SP_in: in std_logic_vector(15 downto 0)); -- Stack Pointer input signal
+			SP_in: in std_logic_vector(15 downto 0); -- Stack Pointer input signal
 			changes_S: in std_logic; -- active if current instruction affects S
 			ld_S_in: in std_logic; -- control signal for S
-			changes_N: in std_logic; -- active if current instruction affects N
-			ld_N_in: in std_logic; -- control signal for N
+			changes_P: in std_logic; -- active if current instruction affects N
+			ld_P_in: in std_logic; -- control signal for N
 			changes_Z: in std_logic; -- active if current instruction affects Z
 			ld_Z_in: in std_logic; -- control signal for Z
 			changes_O: in std_logic; -- active if current instruction affects O
@@ -194,7 +194,7 @@ ARCHITECTURE description OF CPU_8086 IS
 			registerBCtrl: in std_logic; -- 1: Result; 0: MemoryIn
 			registerCCtrl: in std_logic; -- 1: Result; 0: MemoryIn
 			registerDCtrl: in std_logic; -- 1: Result; 0: MemoryIn
-			carryInCtrl: in std_logic_vector(2 downto 0)); -- MX control for the carry bit
+			carryInCtrl: in std_logic_vector(2 downto 0) -- MX control for the carry bit
 		);
 	END COMPONENT ExecutionUnit;
 	 
@@ -510,7 +510,7 @@ BEGIN
 			ld_S_in => ld_N,
 			changes_P => changes_P,
 			ld_P_in => ld_P,
-			changes_Z => changes_Z
+			changes_Z => changes_Z,
 			ld_Z_in => ld_Z,
 			changes_O => changes_O,
 			ld_O_in => ld_O,

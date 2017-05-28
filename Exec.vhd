@@ -1,12 +1,16 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
 entity ExecutionUnit is
-	port(clk: in bit; -- clock
+	port(clk: in std_logic; -- clock
 		  firstArgCtrl: in std_logic_vector(2 downto 0); -- first ALU argument
 	     secondArgCtrl: in std_logic_vector(2 downto 0); -- second ALU argument
-		  SP_in: in std_logic_vector(15 downto 0)); -- Stack Pointer input signal
+		  SP_in: in std_logic_vector(15 downto 0); -- Stack Pointer input signal
 		  changes_S: in std_logic; -- active if current instruction affects S
 		  ld_S_in: in std_logic; -- control signal for S
-		  changes_N: in std_logic; -- active if current instruction affects N
-		  ld_N_in: in std_logic; -- control signal for N
+		  changes_P: in std_logic; -- active if current instruction affects N
+		  ld_P_in: in std_logic; -- control signal for N
 		  changes_Z: in std_logic; -- active if current instruction affects Z
 		  ld_Z_in: in std_logic; -- control signal for Z
 		  changes_O: in std_logic; -- active if current instruction affects O
@@ -19,7 +23,8 @@ entity ExecutionUnit is
 		  registerBCtrl: in std_logic; -- 1: Result; 0: MemoryIn
 		  registerCCtrl: in std_logic; -- 1: Result; 0: MemoryIn
 		  registerDCtrl: in std_logic; -- 1: Result; 0: MemoryIn
-		  carryInCtrl: in std_logic_vector(2 downto 0)); -- MX control for the carry bit
+		  carryInCtrl: in std_logic_vector(2 downto 0) -- MX control for the carry bit
+	);
 end ExecutionUnit;
 
 architecture ExecUnitImpl of ExecutionUnit is
@@ -77,16 +82,16 @@ architecture ExecUnitImpl of ExecutionUnit is
 	signal f_stP: std_logic;
 	signal f_clP: std_logic;
 	signal f_stC: std_logic;
+	signal f_stO: std_logic;
 	signal f_clC: std_logic;
 	signal f_stT: std_logic;
 	signal f_clT: std_logic;
 	signal f_stI: std_logic;
 	signal f_clI: std_logic;
+	signal f_clO: std_logic;
 	signal f_ldFlags: std_logic;
 	signal f_FlagsIn: std_logic_vector(15 downto 0);
 	signal f_FlagsOut: std_logic_vector(15 downto 0);
-	
-	signal SP_in: std_logic_vector(15 downto 0);
 	
 	signal ALU_firstArgument: std_logic_vector(15 downto 0);
 	signal ALU_secondArgument: std_logic_vector(15 downto 0);
@@ -180,56 +185,56 @@ architecture ExecUnitImpl of ExecutionUnit is
 		port map(ALU_firstArgument, ALU_secondArgument, ALU_opCode, ALU_Carry_In, ALU_Carry_Out, ALU_Parity_Out, ALU_Adjust_Out, ALU_Overflow_Out, ALU_Zero_Out, ALU_Sign_Out, ALU_Result);
 		
 	with firstArgCtrl select ALU_firstArgument <= -- MX for the first argument
-		a_reg_out when "000"; -- Register A
-		b_reg_out when "001"; -- Register B
-		c_reg_out when "010"; -- Register C
-		d_reg_out when "011"; -- Register D
-		SP_in when "100"; -- Stack pointer
-		"0000000000000000" when "101"; -- 0
-		"1111111111111111" when "110"; -- -1
+		a_reg_out when "000", -- Register A
+		b_reg_out when "001", -- Register B
+		c_reg_out when "010", -- Register C
+		d_reg_out when "011", -- Register D
+		SP_in when "100", -- Stack pointer
+		"0000000000000000" when "101", -- 0
+		"1111111111111111" when "110", -- -1
 		immediateArg when "111"; -- Immediate argument
 		
 	with secondArgCtrl select ALU_secondArgument <= -- MX for the second argument
-		a_reg_out when "000"; -- Register A
-		b_reg_out when "001"; -- Register B
-		c_reg_out when "010"; -- Register C
-		d_reg_out when "011"; -- Register D
-		SP_in when "100"; -- Stack pointer
-		"0000000000000000" when "101"; -- 0
-		"1111111111111111" when "110"; -- -1
+		a_reg_out when "000", -- Register A
+		b_reg_out when "001", -- Register B
+		c_reg_out when "010", -- Register C
+		d_reg_out when "011", -- Register D
+		SP_in when "100", -- Stack pointer
+		"0000000000000000" when "101", -- 0
+		"1111111111111111" when "110", -- -1
 		immediateArg when "111"; -- Immediate argument
 		
 	with registerACtrl select a_reg_in <= -- MX for register A input
-		memoryIn when '0';
-		Result when '1';
+		memoryIn when '0',
+		ALU_Result when '1';
 		
 	with registerBCtrl select b_reg_in <= -- MX for register B input
-		memoryIn when '0';
-		Result when '1';
+		memoryIn when '0',
+		ALU_Result when '1';
 		
 	with registerCCtrl select c_reg_in <= -- MX for register C input
-		memoryIn when '0';
-		Result when '1';
+		memoryIn when '0',
+		ALU_Result when '1';
 		
 	with registerDCtrl select d_reg_in <= -- MX for register D input
-		memoryIn when '0';
-		Result when '1';
+		memoryIn when '0',
+		ALU_Result when '1';
 		
 	with carryInCtrl select Carry_In <= -- MX for ALU carry in
-		'0' when "000"; -- 0
-		'1' when "001"; -- 1
-		flags(3) when "010"; -- Flags carry bit
-		firstArgument(0) when "011"; -- Lowest bit of the first argument. Used in rotations
-		firstArgument(15) when "100"; -- Highest bit of the first argument. Used in rotations and arithmetic shifts
-		secondArgument(0) when "101"; -- Lowest bit of the second argument. Used in rotations
-		secondArgument(15) when "110"; -- Highest bit of the second argument. Used in rotations and arithmetic shifts
+		'0' when "000", -- 0
+		'1' when "001", -- 1
+		f_FlagsOut(3) when "010", -- Flags carry bit
+		ALU_firstArgument(0) when "011", -- Lowest bit of the first argument. Used in rotations
+		ALU_firstArgument(15) when "100", -- Highest bit of the first argument. Used in rotations and arithmetic shifts
+		ALU_secondArgument(0) when "101", -- Lowest bit of the second argument. Used in rotations
+		ALU_firstArgument(15) when "110", -- Highest bit of the second argument. Used in rotations and arithmetic shifts
 		'1' when "111"; -- Placeholder
 		
 	-- changes Sign flag if the operation is supposed to change it, load signal is active and ALU flag is (in)active
 	f_stS <= changes_S and ld_S_in and ALU_Sign_Out;
 	f_clS <= changes_S and ld_S_in and not ALU_Sign_Out;
 	
-	f_stZ <= changes_Z and ld_Z_in and ALU_Zero_Out_;
+	f_stZ <= changes_Z and ld_Z_in and ALU_Zero_Out;
 	f_clZ <= changes_Z and ld_Z_in and not ALU_Zero_Out;
 	
 	f_stO <= changes_O and ld_O_in and ALU_Overflow_Out;

@@ -1,3 +1,7 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
 entity FlagsRegister is
 	port (clk: in std_logic; -- clock signal
 			
@@ -29,7 +33,7 @@ entity FlagsRegister is
 			);
 end FlagsRegister;
 
-architecture FlagsRegisterImplementation is
+architecture FlagsRegisterImplementation of FlagsRegister is
 begin
 		process(clk, stS, clS, stZ, clZ, stP, clP, stC, clC, stO, clO, stT, clT, stI, clI, ldFlags, FlagsIn)
 		begin
