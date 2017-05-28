@@ -4,18 +4,25 @@ USE ieee.std_logic_arith.ALL;
 USE ieee.std_logic_unsigned.ALL;
 ENTITY BUS_block IS
 	PORT(
-		addr : IN STD_LOGIC_VECTOR(15 DOWNTO 0);	-- address
+		PC_adr : IN STD_LOGIC_VECTOR(15 DOWNTO 0);	-- address for new instruction
+		SP_adr : IN STD_LOGIC_VECTOR(15 DOWNTO 0);	-- address for stack
+		IR_adr : IN STD_LOGIC_VECTOR(15 DOWNTO 0);	-- address from inddirect/direct memory access
+		ALU_adr : IN STD_LOGIC_VECTOR(15 DOWNTO 0);	-- address from relative access
+		
+		mx_mar : IN STD_LOGIC_VECTOR(1 DOWNTO 0); -- multiplexer deciding the mar_in value
+
 		ld_mar : IN STD_LOGIC;	-- 1 : load value from addr to MAR
 
 		dat_in : IN  STD_LOGIC_VECTOR(15 DOWNTO 0);	-- data to write to DW
 		ld_dw_l : IN STD_LOGIC;		-- 1 : load value to dw_l
 		ld_dw_h : IN STD_LOGIC;		-- 1 : load value to dw_h
+		mx_dw : IN STD_LOGIC;	-- 1 : load into dw from mdr
+											-- 0 : load into dw from dat_in
 
 		ld_mdr : IN STD_LOGIC;		-- 1 : load value to mdr
-		load_mem : IN STD_LOGIC;	-- 1 : load value from memory to mdr
-		load_low : IN STD_LOGIC;	-- when load_mem is 0 then:
-											-- 1 : load dw_l to mdr
-											-- 0 : load dw_h to mdr
+		mx_mdr : IN STD_LOGIC_VECTOR(1 DOWNTO 0);	-- 00 : load mem_out to mdr
+																-- 01 : load dw_l to mdr
+																-- 10 : load dw_h to mdr
 
 		mem_write : IN STD_LOGIC;	-- 1 : write mdr to memory
 
@@ -37,7 +44,7 @@ ARCHITECTURE description OF BUS_block IS
 		);
 	END COMPONENT memory;
 	
-	COMPONENT reg16 IS
+	COMPONENT register16 IS
 		PORT (
 			reg_in : IN STD_LOGIC_VECTOR(15 DOWNTO 0); -- input.
 			ld : IN STD_LOGIC; -- load/enable.
@@ -51,9 +58,9 @@ ARCHITECTURE description OF BUS_block IS
 			l_bit : IN STD_LOGIC; -- new 15 bit after right shift
 			reg_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0) -- output
 		);
-	END COMPONENT reg16;
+	END COMPONENT register16;
 	
-	COMPONENT reg8 IS
+	COMPONENT register8 IS
 		PORT (
 			reg_in : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- input.
 			ld : IN STD_LOGIC; -- load/enable.
@@ -67,7 +74,7 @@ ARCHITECTURE description OF BUS_block IS
 			l_bit : IN STD_LOGIC; -- new 7 bit after right shift
 			reg_out : OUT STD_LOGIC_VECTOR(7 DOWNTO 0) -- output
 		);
-	END COMPONENT reg8;
+	END COMPONENT register8;
 	
 	SIGNAL mar_val : STD_LOGIC_VECTOR(15 DOWNTO 0);
 	SIGNAL mdr_val : STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -76,16 +83,33 @@ ARCHITECTURE description OF BUS_block IS
 	SIGNAL load_mdr : STD_LOGIC;
 	SIGNAL dw_l_val : STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL dw_h_val : STD_LOGIC_VECTOR(7 DOWNTO 0);
+	
+	SIGNAL dw_l_in : STD_LOGIC_VECTOR(7 DOWNTO 0);
+	SIGNAL dw_h_in : STD_LOGIC_VECTOR(7 DOWNTO 0);
+	
+	SIGNAL mar_in : STD_LOGIC_VECTOR(15 DOWNTO 0);
+	
 BEGIN
-	mdr_in <=	mem_out when load_mem = '1' else
-					dw_l_val when load_low = '1' else
-					dw_h_val when load_low = '0';
+	mdr_in <=	mem_out when mx_mdr = "00" else
+					dw_l_val when mx_mdr = "01" else
+					dw_h_val when mx_mdr = "10";
+	
+	dw_l_in <= dat_in(7 DOWNTO 0) when mx_dw = '0' else
+				mdr_val when mx_dw = '1';
+
+	dw_h_in <= dat_in(15 DOWNTO 8) when mx_dw = '0' else
+				mdr_val when mx_dw = '1';
+	
+	mar_in <= PC_adr when mx_mar = "00" else
+					IR_adr when mx_mar = "01" else
+					SP_adr when mx_mar = "10" else
+					ALU_adr when mx_mar = "11";
 	
 	mem: memory PORT MAP(wr => mem_write, addr => mar_val, dat_in => mdr_val, dat_out => mem_out, clk => clk);
-	mar: reg16 PORT MAP(reg_in => addr, ld => ld_mar, inc => '0', dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => mar_val);
-	mdr: reg8 PORT MAP(reg_in => mdr_in, ld => ld_mdr, inc => '0', dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => mdr_val);
-	dw_l: reg8 PORT MAP(reg_in => dat_in(7 DOWNTO 0), ld => ld_dw_l, inc => '0', dec => '0', clr => '0', clk => clk, r_bit => '0', shr => '0', shl => '0', l_bit => '0', reg_out => dw_l_val);
-	dw_h: reg8 PORT MAP(reg_in => dat_in(15 DOWNTO 8), ld => ld_dw_h, inc => '0', dec => '0', clr => '0', clk => clk, r_bit => '0', shr => '0', shl => '0', l_bit => '0', reg_out => dw_h_val);
+	mar: register16 PORT MAP(reg_in => mar_in, ld => ld_mar, inc => '0', dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => mar_val);
+	mdr: register8 PORT MAP(reg_in => mdr_in, ld => ld_mdr, inc => '0', dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => mdr_val);
+	dw_l: register8 PORT MAP(reg_in => dw_l_in, ld => ld_dw_l, inc => '0', dec => '0', clr => '0', clk => clk, r_bit => '0', shr => '0', shl => '0', l_bit => '0', reg_out => dw_l_val);
+	dw_h: register8 PORT MAP(reg_in => dw_h_in, ld => ld_dw_h, inc => '0', dec => '0', clr => '0', clk => clk, r_bit => '0', shr => '0', shl => '0', l_bit => '0', reg_out => dw_h_val);
 	dat_out <= dw_l_val & dw_h_val;
 	
 	mdr_out <= mdr_val;

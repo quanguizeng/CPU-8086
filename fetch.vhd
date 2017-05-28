@@ -1,5 +1,5 @@
 library IEEE;
-use ieee.std_logic_1644.all;
+use ieee.std_logic_1164.all;
 
 entity fetch is
     PORT(
@@ -100,12 +100,12 @@ entity fetch is
         
         pc_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
         
-        ir_out : OUT STD_LOGIC_VECTOR(23 DOWNTO 0);
+        ir_out : OUT STD_LOGIC_VECTOR(23 DOWNTO 0)
     );
 end fetch;
 
 architecture fetchImpl of fetch is
-    COMPONENT reg16 IS
+    COMPONENT register16 IS
 		PORT (
 			reg_in : IN STD_LOGIC_VECTOR(15 DOWNTO 0); -- input.
 			ld : IN STD_LOGIC; -- load/enable.
@@ -119,9 +119,9 @@ architecture fetchImpl of fetch is
 			l_bit : IN STD_LOGIC; -- new 15 bit after right shift
 			reg_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0) -- output
 		);
-	END COMPONENT reg16;
+	END COMPONENT register16;
 	
-	COMPONENT reg8 IS
+	COMPONENT register8 IS
 		PORT (
 			reg_in : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- input.
 			ld : IN STD_LOGIC; -- load/enable.
@@ -135,7 +135,7 @@ architecture fetchImpl of fetch is
 			l_bit : IN STD_LOGIC; -- new 7 bit after right shift
 			reg_out : OUT STD_LOGIC_VECTOR(7 DOWNTO 0) -- output
 		);
-	END COMPONENT reg8;
+	END COMPONENT register8;
 	
 	SIGNAL IR : STD_LOGIC_VECTOR(23 DOWNTO 0);
 	SIGNAL PC_in : STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -266,27 +266,23 @@ begin
     MOV <= MOV_inner;
     
     load_store_two_byte_inner <= MOV_inner;
-    load_store_three_byte_inner <= load_store and (not MOV_inner);
+    load_store_three_byte_inner <= load_store_inner and (not MOV_inner);
     
     one_byte <= no_operand_inner or one_register_operand_inner or div_reg_inner;
     two_byte <= interrupt_inner or arlog_reg_inner or io_inner or load_store_two_byte_inner;
     three_byte <= branch_inner or arlog_imm_inner or div_imm_inner or load_store_three_byte_inner;
     
-    pc: reg16 PORT MAP(reg_in => pc_in, ld => ld_pc, inc => inc_pc, dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => pc_out);
-	ir0: reg8 PORT MAP(reg_in => mdr_out, ld => ld_ir0, inc => '0', dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => ir0_out);
-	ir1: reg8 PORT MAP(reg_in => mdr_out, ld => ld_ir1, inc => '0', dec => '0', clr => '0', clk => clk, r_bit => '0', shr => '0', shl => '0', l_bit => '0', reg_out => ir1_out);
-	ir2: reg8 PORT MAP(reg_in => mdr_out, ld => ld_ir2, inc => '0', dec => '0', clr => '0', clk => clk, r_bit => '0', shr => '0', shl => '0', l_bit => '0', reg_out => ir2_out);
+    pc: register16 PORT MAP(reg_in => pc_in, ld => ld_pc, inc => inc_pc, dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => pc_out);
+	ir0: register8 PORT MAP(reg_in => mdr_out, ld => ld_ir0, inc => '0', dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => ir0_out);
+	ir1: register8 PORT MAP(reg_in => mdr_out, ld => ld_ir1, inc => '0', dec => '0', clr => '0', clk => clk, r_bit => '0', shr => '0', shl => '0', l_bit => '0', reg_out => ir1_out);
+	ir2: register8 PORT MAP(reg_in => mdr_out, ld => ld_ir2, inc => '0', dec => '0', clr => '0', clk => clk, r_bit => '0', shr => '0', shl => '0', l_bit => '0', reg_out => ir2_out);
 	
 	ir_out <= IR;
 	
-	case mx_pc is
-      when "00" =>
-        pc_in <= dw_out;
-      when "01" =>
-        pc_in <= addr;
-      when "10" =>
-        pc_in <= ir2_out & ir1_out;
-    end case;
+	
+	pc_in <= dw_out when mx_pc = "00" else
+				addr when mx_pc = "01" else
+				ir2_out & ir1_out when mx_pc = "10";
+
     
 end fetchImpl;
-
