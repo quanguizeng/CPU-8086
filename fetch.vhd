@@ -83,6 +83,12 @@ entity fetch is
         two_byte : OUT STD_LOGIC;
         three_byte : OUT STD_LOGIC;
         
+        carry: OUT STD_LOGIC;
+        overflow: OUT STD_LOGIC;
+        parity: OUT STD_LOGIC;
+        sign: OUT STD_LOGIC;
+        zero: OUT STD_LOGIC;
+        
         dw_out : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
         addr : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
         
@@ -160,6 +166,33 @@ architecture fetchImpl of fetch is
     SIGNAL MOV_inner : STD_LOGIC;
     SIGNAL DIV_inner : STD_LOGIC;
     SIGNAL INT_inner : STD_LOGIC;
+    
+    SIGNAL ADD_inner : STD_LOGIC;
+    SIGNAL SUB_inner : STD_LOGIC;
+    SIGNAL INC_inner : STD_LOGIC;
+    SIGNAL DEC_inner : STD_LOGIC;
+    SIGNAL MUL_inner : STD_LOGIC;
+    SIGNAL NEG_inner : STD_LOGIC;
+    SIGNAL AND_inner : STD_LOGIC;
+    SIGNAL OR_inner : STD_LOGIC;
+    SIGNAL XOR_inner : STD_LOGIC;
+    SIGNAL NOT_inner : STD_LOGIC;
+    SIGNAL CLC_inner : STD_LOGIC;
+    SIGNAL STC_inner : STD_LOGIC;
+    SIGNAL CMP_inner : STD_LOGIC;
+    SIGNAL TEST_inner : STD_LOGIC;
+    SIGNAL LOOP_inner : STD_LOGIC;
+    SIGNAL LOOPE_inner : STD_LOGIC;
+    SIGNAL LOOPNE_inner : STD_LOGIC;
+    SIGNAL RCL_inner : STD_LOGIC;
+    SIGNAL RCR_inner : STD_LOGIC;
+    SIGNAL ROL_inner : STD_LOGIC;
+    SIGNAL ROR_inner : STD_LOGIC;
+    SIGNAL SAHR_inner : STD_LOGIC;
+    SIGNAL SAR_inner : STD_LOGIC;
+    SIGNAL SAL_inner : STD_LOGIC;
+    SIGNAL SHR_inner : STD_LOGIC;
+    SIGNAL SHL_inner : STD_LOGIC;
 begin
     IR <= ir0_out & ir1_out & ir2_out;
     
@@ -185,8 +218,8 @@ begin
     IRET <= no_operand_inner and (not IR(18)) and IR(17) and IR(16);
     CLI <= no_operand_inner and IR(18) and (not IR(17)) and (not IR(16));
     STI <= no_operand_inner and IR(18) and (not IR(17)) and IR(16);
-    CLC <= no_operand_inner and IR(18) and IR(17) and (not IR(16));
-    STC <= no_operand_inner and IR(18) and IR(17) and IR(16);
+    CLC_inner <= no_operand_inner and IR(18) and IR(17) and (not IR(16));
+    STC_inner <= no_operand_inner and IR(18) and IR(17) and IR(16);
     
     branch_inner <= IR(23) and IR(22) and IR(21) and (not IR(20)) and (not INT_inner);
     
@@ -201,9 +234,9 @@ begin
 	JNP <= branch_inner and IR(19) and (not IR(18)) and (not IR(17)) and (not IR(16));
 	JO <= branch_inner and IR(19) and (not IR(18)) and (not IR(17)) and IR(16);
 	JNO <= branch_inner and IR(19) and (not IR(18)) and IR(17) and (not IR(16));
-	LOOP_ins <= branch_inner and IR(19) and (not IR(18)) and IR(17) and IR(16);
- 	LOOPE <= branch_inner and IR(19) and IR(18) and (not IR(17)) and (not IR(16));
-	LOOPNE <= branch_inner and IR(19) and IR(18) and (not IR(17)) and IR(16);
+	LOOP_inner <= branch_inner and IR(19) and (not IR(18)) and IR(17) and IR(16);
+ 	LOOPE_inner <= branch_inner and IR(19) and IR(18) and (not IR(17)) and (not IR(16));
+	LOOPNE_inner <= branch_inner and IR(19) and IR(18) and (not IR(17)) and IR(16);
 	CALL <= branch_inner and IR(19) and IR(18) and IR(17) and (not IR(16));
     
     interrupt_inner <= INT_inner;
@@ -214,32 +247,32 @@ begin
     
     one_register_operand_inner <= IR(23) and (not IR(22)) and (not io_inner);
     
-    NEG <= one_register_operand_inner and (not IR(21)) and (not IR(20)) and (not IR(19)) and (not IR(18));
-    NOT_ins <= one_register_operand_inner and (not IR(21)) and (not IR(20)) and (not IR(19)) and IR(18);
-    INC <= one_register_operand_inner and (not IR(21)) and (not IR(20)) and IR(19) and (not IR(18));
-    DEC <= one_register_operand_inner and (not IR(21)) and (not IR(20)) and IR(19) and IR(18);
-    RCL <= one_register_operand_inner and (not IR(21)) and IR(20) and (not IR(19)) and (not IR(18));
-    RCR <= one_register_operand_inner and (not IR(21)) and IR(20) and (not IR(19)) and IR(18);
-    ROL_ins <= one_register_operand_inner and (not IR(21)) and IR(20) and IR(19) and (not IR(18));
-    ROR_ins <= one_register_operand_inner and (not IR(21)) and IR(20) and IR(19) and IR(18);
-    SAHR <= one_register_operand_inner and IR(21) and (not IR(20)) and (not IR(19)) and (not IR(18));
-    SAR <= one_register_operand_inner and IR(21) and (not IR(20)) and (not IR(19)) and IR(18);
-    SAL <= one_register_operand_inner and IR(21) and (not IR(20)) and IR(19) and (not IR(18));
-    SHL <= one_register_operand_inner and IR(21) and (not IR(20)) and IR(19) and IR(18);
-    SHR <= one_register_operand_inner and IR(21) and IR(20) and (not IR(19)) and (not IR(18));
+    NEG_inner <= one_register_operand_inner and (not IR(21)) and (not IR(20)) and (not IR(19)) and (not IR(18));
+    NOT_inner <= one_register_operand_inner and (not IR(21)) and (not IR(20)) and (not IR(19)) and IR(18);
+    INC_inner <= one_register_operand_inner and (not IR(21)) and (not IR(20)) and IR(19) and (not IR(18));
+    DEC_inner <= one_register_operand_inner and (not IR(21)) and (not IR(20)) and IR(19) and IR(18);
+    RCL_inner <= one_register_operand_inner and (not IR(21)) and IR(20) and (not IR(19)) and (not IR(18));
+    RCR_inner <= one_register_operand_inner and (not IR(21)) and IR(20) and (not IR(19)) and IR(18);
+    ROL_inner <= one_register_operand_inner and (not IR(21)) and IR(20) and IR(19) and (not IR(18));
+    ROR_inner <= one_register_operand_inner and (not IR(21)) and IR(20) and IR(19) and IR(18);
+    SAHR_inner <= one_register_operand_inner and IR(21) and (not IR(20)) and (not IR(19)) and (not IR(18));
+    SAR_inner <= one_register_operand_inner and IR(21) and (not IR(20)) and (not IR(19)) and IR(18);
+    SAL_inner <= one_register_operand_inner and IR(21) and (not IR(20)) and IR(19) and (not IR(18));
+    SHL_inner <= one_register_operand_inner and IR(21) and (not IR(20)) and IR(19) and IR(18);
+    SHR_inner <= one_register_operand_inner and IR(21) and IR(20) and (not IR(19)) and (not IR(18));
     POP <= one_register_operand_inner and IR(21) and IR(20) and (not IR(19)) and IR(18);
     PUSH <= one_register_operand_inner and IR(21) and IR(20) and IR(19) and (not IR(18));
     
     arlog_inner <= not IR(23);
     
-    ADD <= arlog_inner and (not IR(22)) and (not IR(21)) and (not IR(20));
-    SUB <= arlog_inner and (not IR(22)) and (not IR(21)) and IR(20);
-    MUL <= arlog_inner and (not IR(22)) and IR(21) and (not IR(20));
-    AND_ins <= arlog_inner and (not IR(22)) and IR(21) and IR(20);
-    OR_ins <= arlog_inner and IR(22) and (not IR(21)) and (not IR(20));
-    XOR_ins <= arlog_inner and IR(22) and (not IR(21)) and IR(20);
-    CMP <= arlog_inner and IR(22) and IR(21) and (not IR(20));
-    TEST <= arlog_inner and IR(22) and IR(21) and IR(20);
+    ADD_inner <= arlog_inner and (not IR(22)) and (not IR(21)) and (not IR(20));
+    SUB_inner <= arlog_inner and (not IR(22)) and (not IR(21)) and IR(20);
+    MUL_inner <= arlog_inner and (not IR(22)) and IR(21) and (not IR(20));
+    AND_inner <= arlog_inner and (not IR(22)) and IR(21) and IR(20);
+    OR_inner <= arlog_inner and IR(22) and (not IR(21)) and (not IR(20));
+    XOR_inner <= arlog_inner and IR(22) and (not IR(21)) and IR(20);
+    CMP_inner <= arlog_inner and IR(22) and IR(21) and (not IR(20));
+    TEST_inner <= arlog_inner and IR(22) and IR(21) and IR(20);
     
     arlog_imm_inner <= arlog_inner and IR(19);
     arlog_reg_inner <= arlog_inner and (not IR(19));
@@ -272,6 +305,39 @@ begin
     two_byte <= interrupt_inner or arlog_reg_inner or io_inner or load_store_two_byte_inner;
     three_byte <= branch_inner or arlog_imm_inner or div_imm_inner or load_store_three_byte_inner;
     
+    ADD <= ADD_inner;
+    SUB <= SUB_inner;
+    INC <= INC_inner;
+    DEC <= DEC_inner;
+    MUL <= MUL_inner;
+    NEG <= NEG_inner;
+    AND_ins <= AND_inner;
+    OR_ins <= OR_inner;
+    XOR_ins <= XOR_inner;
+    NOT_ins <= NOT_inner;
+    CLC <= CLC_inner;
+    STC <= STC_inner;
+    CMP <= CMP_inner;
+    TEST <= TEST_inner;
+    LOOP_ins <= LOOP_inner;
+    LOOPE <= LOOPE_inner;
+    LOOPNE <= LOOPNE_inner;
+    RCL <= RCL_inner;
+    RCR <= RCR_inner;
+    ROL_ins <= ROL_inner;
+    ROR_ins <= ROR_inner;
+    SAHR <= SAHR_inner;
+    SHR <= SHR_inner;
+    SHL <= SHL_inner;
+    SAR <= SAR_inner;
+    SAL <= SAL_inner;
+    
+    carry <= ADD_inner or SUB_inner or MUL_inner or XOR_inner or AND_inner or OR_inner or NOT_inner or CLC_inner or STC_inner or CMP_inner or TEST_inner or RCL_inner or RCR_inner or ROL_inner or ROR_inner or SAHR_inner or SAR_inner or SAL_inner or SHL_inner or SHR_inner;
+    overflow <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or XOR_inner or AND_inner or OR_inner or NOT_inner or CMP_inner or TEST_inner or RCL_inner or RCR_inner or ROL_inner or ROR_inner or SAHR_inner or SAR_inner or SAL_inner or SHL_inner or SHR_inner;
+    parity <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or XOR_inner or AND_inner or OR_inner or NOT_inner;
+    sign <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or NEG_inner or XOR_inner or AND_inner or OR_inner or NOT_inner;
+    zero <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or XOR_inner or AND_inner or OR_inner or NOT_inner LOOP_inner or LOOPE_inner or LOOPNE_inner;
+    
     pc: register16 PORT MAP(reg_in => pc_in, ld => ld_pc, inc => inc_pc, dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => pc_out);
 	ir0: register8 PORT MAP(reg_in => mdr_out, ld => ld_ir0, inc => '0', dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => ir0_out);
 	ir1: register8 PORT MAP(reg_in => mdr_out, ld => ld_ir1, inc => '0', dec => '0', clr => '0', clk => clk, r_bit => '0', shr => '0', shl => '0', l_bit => '0', reg_out => ir1_out);
@@ -284,5 +350,4 @@ begin
 				addr when mx_pc = "01" else
 				ir2_out & ir1_out when mx_pc = "10";
 
-    
 end fetchImpl;
