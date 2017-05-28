@@ -179,51 +179,51 @@ architecture ExecUnitImpl of ExecutionUnit is
 	ALUCom: ALU
 		port map(ALU_firstArgument, ALU_secondArgument, ALU_opCode, ALU_Carry_In, ALU_Carry_Out, ALU_Parity_Out, ALU_Adjust_Out, ALU_Overflow_Out, ALU_Zero_Out, ALU_Sign_Out, ALU_Result);
 		
-	with firstArgCtrl select ALU_firstArgument <= -- MX 
-		a_reg_out when "000";
-		b_reg_out when "001";
-		c_reg_out when "010";
-		d_reg_out when "011";
-		SP_in when "100";
-		"0000000000000000" when "101";
-		"1111111111111111" when "110";
-		immediateArg when "111";
+	with firstArgCtrl select ALU_firstArgument <= -- MX for the first argument
+		a_reg_out when "000"; -- Register A
+		b_reg_out when "001"; -- Register B
+		c_reg_out when "010"; -- Register C
+		d_reg_out when "011"; -- Register D
+		SP_in when "100"; -- Stack pointer
+		"0000000000000000" when "101"; -- 0
+		"1111111111111111" when "110"; -- -1
+		immediateArg when "111"; -- Immediate argument
 		
-	with secondArgCtrl select ALU_secondArgument <=
-		a_reg_out when "000";
-		b_reg_out when "001";
-		c_reg_out when "010";
-		d_reg_out when "011";
-		SP_in when "100";
-		"0000000000000000" when "101";
-		"1111111111111111" when "110";
-		immediateArg when "111";
+	with secondArgCtrl select ALU_secondArgument <= -- MX for the second argument
+		a_reg_out when "000"; -- Register A
+		b_reg_out when "001"; -- Register B
+		c_reg_out when "010"; -- Register C
+		d_reg_out when "011"; -- Register D
+		SP_in when "100"; -- Stack pointer
+		"0000000000000000" when "101"; -- 0
+		"1111111111111111" when "110"; -- -1
+		immediateArg when "111"; -- Immediate argument
 		
-	with registerACtrl select a_reg_in <=
+	with registerACtrl select a_reg_in <= -- MX for register A input
 		memoryIn when '0';
 		Result when '1';
 		
-	with registerBCtrl select b_reg_in <=
+	with registerBCtrl select b_reg_in <= -- MX for register B input
 		memoryIn when '0';
 		Result when '1';
 		
-	with registerCCtrl select c_reg_in <=
+	with registerCCtrl select c_reg_in <= -- MX for register C input
 		memoryIn when '0';
 		Result when '1';
 		
-	with registerDCtrl select d_reg_in <=
+	with registerDCtrl select d_reg_in <= -- MX for register D input
 		memoryIn when '0';
 		Result when '1';
 		
-	with carryInCtrl select Carry_In <=
-		'0' when "000";
-		'1' when "001";
-		flags(3) when "010";
-		firstArgument(0) when "011";
-		firstArgument(15) when "100";
-		secondArgument(0) when "101";
-		secondArgument(15) when "110";
-		'1' when "111";
+	with carryInCtrl select Carry_In <= -- MX for ALU carry in
+		'0' when "000"; -- 0
+		'1' when "001"; -- 1
+		flags(3) when "010"; -- Flags carry bit
+		firstArgument(0) when "011"; -- Lowest bit of the first argument. Used in rotations
+		firstArgument(15) when "100"; -- Highest bit of the first argument. Used in rotations and arithmetic shifts
+		secondArgument(0) when "101"; -- Lowest bit of the second argument. Used in rotations
+		secondArgument(15) when "110"; -- Highest bit of the second argument. Used in rotations and arithmetic shifts
+		'1' when "111"; -- Placeholder
 		
 	-- changes Sign flag if the operation is supposed to change it, load signal is active and ALU flag is (in)active
 	f_stS <= changes_S and ld_S_in and ALU_Sign_Out;
