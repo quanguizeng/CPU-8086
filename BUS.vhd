@@ -19,7 +19,7 @@ ENTITY BUS_block IS
 
 		mem_write : IN STD_LOGIC;	-- 1 : write mdr to memory
 
-		mdr_out : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- value from mdr
+		mdr_out : OUT STD_LOGIC_VECTOR(7 DOWNTO 0); -- value from mdr
 
 		dat_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);	-- value from DW
 
@@ -70,6 +70,7 @@ ARCHITECTURE description OF BUS_block IS
 	END COMPONENT reg8;
 	
 	SIGNAL mar_val : STD_LOGIC_VECTOR(15 DOWNTO 0);
+	SIGNAL mdr_val : STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL mdr_in : STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL mem_out : STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL load_mdr : STD_LOGIC;
@@ -80,12 +81,14 @@ BEGIN
 					dw_l_val when load_low = '1' else
 					dw_h_val when load_low = '0';
 	
-	mem: memory PORT MAP(wr => mem_write, addr => mar_val, dat_in => mdr_out, dat_out => mem_out, clk => clk);
+	mem: memory PORT MAP(wr => mem_write, addr => mar_val, dat_in => mdr_val, dat_out => mem_out, clk => clk);
 	mar: reg16 PORT MAP(reg_in => addr, ld => ld_mar, inc => '0', dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => mar_val);
-	mdr: reg8 PORT MAP(reg_in => mdr_in, ld => ld_mdr, inc => '0', dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => mdr_out);
+	mdr: reg8 PORT MAP(reg_in => mdr_in, ld => ld_mdr, inc => '0', dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => mdr_val);
 	dw_l: reg8 PORT MAP(reg_in => dat_in(7 DOWNTO 0), ld => ld_dw_l, inc => '0', dec => '0', clr => '0', clk => clk, r_bit => '0', shr => '0', shl => '0', l_bit => '0', reg_out => dw_l_val);
 	dw_h: reg8 PORT MAP(reg_in => dat_in(15 DOWNTO 8), ld => ld_dw_h, inc => '0', dec => '0', clr => '0', clk => clk, r_bit => '0', shr => '0', shl => '0', l_bit => '0', reg_out => dw_h_val);
 	dat_out <= dw_l_val & dw_h_val;
+	
+	mdr_out <= mdr_val;
 	
 	process(clk)
 	begin
