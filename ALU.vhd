@@ -3,30 +3,38 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity ALU is
-	port (FirstArgument, SecondArgument: in std_logic_vector(15 downto 0);
-			Operation: in std_logic_vector(5 downto 0);
-			Carry_In: in std_logic;
+	port (FirstArgument, SecondArgument: in std_logic_vector(15 downto 0); -- ALU arguments
+			Operation: in std_logic_vector(5 downto 0); -- Operation code
+			Carry_In: in std_logic; -- Carry from the previous round
 			
+			-- Flags
 			Carry_Out: out std_logic;
 			Parity_Out: out std_logic;
 			Adjust_Out: out std_logic;
 			Overflow_Out: out std_logic;
 			Zero_Out: out std_logic;
 			Sign_Out: out std_logic;
+			
+			-- ALU Output
 			Result: out std_logic_vector(15 downto 0)
 		);
 end entity ALU;
 
 architecture Behavior of ALU is
-
+	-- Temporary storage for addition
 	signal Temp: std_logic_vector(16 downto 0);
+	
+	-- Temporary storage for bottom nibble for BCD operations and adjust flag
 	signal Temp_Nibble: std_logic_vector(4 downto 0);
+	
+	-- Temporary storage for multiplication
 	signal TempMul: std_logic_vector(31 downto 0);
 	
 begin
 
 	process(FirstArgument, SecondArgument, Operation, Temp, Carry_In) is
 	
+	-- Operation constants
 	constant ADD_OP:  std_logic_vector(5 downto 0) := "000000";
 	constant SUB_OP:  std_logic_vector(5 downto 0) := "000001";
 	constant AND_OP:  std_logic_vector(5 downto 0) := "000010";
@@ -52,37 +60,49 @@ begin
 		case Operation is
 		
 		when ADD_OP => -- Result = Arg1 + Arg2, Flag = Carry = Overflow
+		
+			-- Add arguments
 			Temp <= std_logic_vector((unsigned(FirstArgument) + unsigned(SecondArgument) + unsigned(Carry_In)));
+			
+			-- Add bottom nibble
 			Temp_Nibble <= std_logic_vector(unsigned(FirstArgument(3 downto 0) + SecondArgument(3 downto 0) + unsigned(Carry_In)));
 			
+			-- Save result
 			Result <= Temp(15 downto 0);
+			
+			-- Set carry and overflow
 			Carry_Out <= Temp(16);
 			Overflow <= Temp(16);
-			if (unsigned(Temp(15 downto 0)) = 0) then Zero_Out <= '1';
+			
+			
+			-- Set adjust
 			Adjust_Out <= Temp_Nibble(4);
 			
 		when SUB_OP => -- Result = |Arg1 - Arg2|, Flag = 1 iff Arg2 > Arg1
+		
+			-- If the result is positive
 			if (FirstArgument >= SecondArgument) then
+				-- Save result
 				Result <= std_logic_vector(unsigned(FirstArgument) - unsigned(SecondArgument));
+				-- No overflow
 				Overflow_Out <= '0';
-				if (Temp(15 downto 0) = "0000000000000000") then Zero_Out <= '1';
+				
+				-- Set carry
 				Carry_Out <= '0';
-				Parity_Out <= Temp(0);
-				Sign_Out <= Temp(15);
-				
-				
-				
+		
 			else
+				-- Overflow occurs
 				Result <= std_logic_vector(unsigned(SecondArgument) - unsigned(FirstArgument));
 				
+				-- Set overflow
 				Overflow_Out <= '1';
+				-- Set carry
 				Carry_Out <= '1';
-				if (unsigned(Temp(15 downto 0)) = 0) then Zero_Out <= '1';
-				Parity_Out <= Temp(0);
-				Sign_Out <= Temp(15);
+
 				
 			end if;
 			
+			-- Set adjust flag
 			if (FirstArgument(3 downto 0) >= SecondArgument(3 downto 0)) then
 					Adjust_Out <= '0';
 				else
@@ -102,16 +122,22 @@ begin
 			Result <= std_logic_vector(-unsigned(FirstArgument));
 		when NEG2_OP => -- Result = - Arg2
 			Result <= std_logic_vector(-unsigned(SecondArgument));
-		when SHL_OP =>
+		when SHL_OP => -- Result = Arg1 | Carry_In
 			Result <= FirstArgument(14 downto 0) & Carry_In;
-			Carry_Out <= FirstArgument(15);
-		when SHR_OP =>
+			Carry_Out <= FirstArgument(15); 
+			if (FirstArgument(15) = Result(15)) Overflow_Out <= '0' else Overflow_Out <= '1' end if;
+		when SHR_OP => -- Result = Carry_In | Arg1
 			Result <= Carry_In & FirstArgument(15 downto 1);
 			Carry_Out <= FirstArgument(0);
-		when MUL_OP =>
+			if (FirstArgument(15) = Result(15)) Overflow_Out <= '0' else Overflow_Out <= '1' end if;
+		when MUL_OP => -- Result = Arg1 x Arg2 N.B. It must be a cross product in a left-handed cartesian system
+			-- Multiply
 			TempMul <= std_logic_vector(unsigned(FirstArgument) * unsigned(SecondArgument));
+			
+			-- Save lower 16 bits
 			Result <= TempMul(15 downto 0);
 			
+			-- Check for carry and overflow
 			if (unsigned(TempMul(31 downto 16)) = 0)
 				begin
 					Carry_Out <= '0';
@@ -125,8 +151,12 @@ begin
 			
 		end case;
 		
+		-- Set Parity and Sign
 		Parity_Out <= Result(0);
-		Sign_Out <= Result(0);
+		Sign_Out <= Result(15);
+		
+		-- Set Zero
+		if Result = "0000000000000000" then Zero_Out <= '1' end if;
 	end process;
 end Behavior;
 		
