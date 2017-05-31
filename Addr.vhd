@@ -7,11 +7,13 @@ entity addr is
         clk : IN STD_LOGIC;
         
         mx_a : IN STD_LOGIC;
+		  
+		  --mx_add :std_logic;
         
         ivtp_out : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
         pc_out : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
         
-        mx_b : IN STD_LOGIC;
+        mx_b : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
         
         ivtdsp : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
         
@@ -61,8 +63,9 @@ begin
     --    a <= pc_out;
     --end case;
     
-	 b <= ivtdsp when mx_b = '0' else
-			IR(7 DOWNTO 0) & IR(15 DOWNTO 8) when mx_b = '1';
+	 b <= ivtdsp when mx_b = "00" else
+			IR(7 DOWNTO 0) & IR(15 DOWNTO 8) when mx_b = "01" else
+			"0000" & "000" & IR(15 DOWNTO 8) & "0" when mx_b = "11";
 	 
     --case mx_b is
     --  when "0" =>

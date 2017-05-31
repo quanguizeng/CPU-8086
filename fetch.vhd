@@ -13,19 +13,19 @@ entity fetch is
         STC : OUT STD_LOGIC;
         
         JMP : OUT STD_LOGIC;
-    	JE : OUT STD_LOGIC;
-    	JNE : OUT STD_LOGIC;
-    	JG : OUT STD_LOGIC;
-    	JGE : OUT STD_LOGIC;
-    	JL : OUT STD_LOGIC;
-    	JLE : OUT STD_LOGIC;
-    	JP : OUT STD_LOGIC;
-    	JNP : OUT STD_LOGIC;
-    	JO : OUT STD_LOGIC;
-    	JNO : OUT STD_LOGIC;
-    	LOOP_ins : OUT STD_LOGIC;
-     	LOOPE : OUT STD_LOGIC;
-    	LOOPNE : OUT STD_LOGIC;
+    	JE : OUT STD_LOGIC;			-- PSW_Z
+    	JNE : OUT STD_LOGIC;			-- !PSW_Z
+    	JG : OUT STD_LOGIC;			-- !PSW_N
+    	JGE : OUT STD_LOGIC;			-- !PSW_N || PSW_Z
+    	JL : OUT STD_LOGIC;			-- PSW_N && !PSW_Z
+    	JLE : OUT STD_LOGIC;			-- PSW_N
+    	JP : OUT STD_LOGIC;			-- PSW_P
+    	JNP : OUT STD_LOGIC;			-- !PSW_P
+    	JO : OUT STD_LOGIC;			-- PSW_O
+    	JNO : OUT STD_LOGIC;			-- !PSW_O
+    	LOOP_ins : OUT STD_LOGIC;	-- dex_CX; !CX_Z
+     	LOOPE : OUT STD_LOGIC;		-- dec_CX; !CX_Z && PSW_Z
+    	LOOPNE : OUT STD_LOGIC;		-- dec_CX; !CX_Z && !PSW_Z
     	CALL : OUT STD_LOGIC;
 	
 	    INT : OUT STD_LOGIC;
@@ -52,8 +52,8 @@ entity fetch is
         AND_ins : OUT STD_LOGIC;
         OR_ins : OUT STD_LOGIC;
         XOR_ins : OUT STD_LOGIC;
-        CMP : OUT STD_LOGIC;
-        TEST : OUT STD_LOGIC;
+        CMP : OUT STD_LOGIC;	-- SUB
+        TEST : OUT STD_LOGIC;	-- AND
         
         DIV : OUT STD_LOGIC;
         
@@ -336,7 +336,7 @@ begin
     overflow <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or XOR_inner or AND_inner or OR_inner or NOT_inner or CMP_inner or TEST_inner or RCL_inner or RCR_inner or ROL_inner or ROR_inner or SAHR_inner or SAR_inner or SAL_inner or SHL_inner or SHR_inner;
     parity <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or XOR_inner or AND_inner or OR_inner or NOT_inner;
     sign <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or NEG_inner or XOR_inner or AND_inner or OR_inner or NOT_inner;
-    zero <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or XOR_inner or AND_inner or OR_inner or NOT_inner LOOP_inner or LOOPE_inner or LOOPNE_inner;
+    zero <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or XOR_inner or AND_inner or OR_inner or NOT_inner or LOOP_inner or LOOPE_inner or LOOPNE_inner;
     
     pc: register16 PORT MAP(reg_in => pc_in, ld => ld_pc, inc => inc_pc, dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => pc_out);
 	ir0: register8 PORT MAP(reg_in => mdr_out, ld => ld_ir0, inc => '0', dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => ir0_out);
@@ -348,6 +348,6 @@ begin
 	
 	pc_in <= dw_out when mx_pc = "00" else
 				addr when mx_pc = "01" else
-				ir2_out & ir1_out when mx_pc = "10";
+				"0000001000000000" when mx_pc = "10";
 
 end fetchImpl;

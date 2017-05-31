@@ -18,12 +18,42 @@ entity ExecutionUnit is
 		  changes_C: in std_logic; -- active if current instruction affects C
 		  ld_C_in: in std_logic; -- control signal for C
 		  immediateArg: in std_logic_vector(15 downto 0); -- immediate argument from isntruction register
+		  device_in : in std_logic_vector(15 downto 0);
 		  memoryIn: in std_logic_vector(15 downto 0); -- 16 bit data from memory
-		  registerACtrl: in std_logic; -- 1: Result; 0: MemoryIn
+		  registerACtrl: in std_logic_vector(1 downto 0); -- 11: Device1; 10: DX; 01: Result; 00: MemoryIn;
 		  registerBCtrl: in std_logic; -- 1: Result; 0: MemoryIn
 		  registerCCtrl: in std_logic; -- 1: Result; 0: MemoryIn
-		  registerDCtrl: in std_logic; -- 1: Result; 0: MemoryIn
-		  carryInCtrl: in std_logic_vector(2 downto 0) -- MX control for the carry bit
+		  registerDCtrl: in std_logic_vector(1 downto 0); -- 11: 0; 10: AX; 01: Result; 00: MemoryIn
+		  carryInCtrl: in std_logic_vector(2 downto 0); -- MX control for the carry bit
+		  
+		  operation : in std_logic_vector(5 downto 0);
+		  
+		  flags_out : out std_logic_vector(15 downto 0); -- value of the flags register
+		  flags_in : in std_logic_vector(15 downto 0); -- input value of the flags register
+		  ld_flags : in std_logic; -- load flags
+		  
+		  dec_cx : in std_logic;
+		  c_zero : out std_logic;
+		  second_arg_zero : out std_logic;
+		  
+		  cli : in std_logic;
+		  sti : in std_logic;
+		  clc : in std_logic;
+		  stc : in std_logic;
+		  
+		  
+		  AX_out : in std_logic_vector(15 downto 0);
+		  BX_out : in std_logic_vector(15 downto 0);
+		  CX_out : in std_logic_vector(15 downto 0);
+		  DX_out : in std_logic_vector(15 downto 0);
+		  
+		  ld_ax : in std_logic;
+		  ld_bx : in std_logic;
+		  ld_cx : in std_logic;
+		  ld_dx : in std_logic;
+		  
+		  inc_dx : in std_logic;
+		  dec_dx : in std_logic
 	);
 end ExecutionUnit;
 
@@ -205,8 +235,10 @@ architecture ExecUnitImpl of ExecutionUnit is
 		immediateArg when "111"; -- Immediate argument
 		
 	with registerACtrl select a_reg_in <= -- MX for register A input
-		memoryIn when '0',
-		ALU_Result when '1';
+		memoryIn when "00",
+		ALU_Result when "01",
+		device_in when "11",
+		d_reg_out when "10";
 		
 	with registerBCtrl select b_reg_in <= -- MX for register B input
 		memoryIn when '0',
@@ -217,8 +249,10 @@ architecture ExecUnitImpl of ExecutionUnit is
 		ALU_Result when '1';
 		
 	with registerDCtrl select d_reg_in <= -- MX for register D input
-		memoryIn when '0',
-		ALU_Result when '1';
+		memoryIn when "00",
+		ALU_Result when "01",
+		a_reg_out when "10",
+		"0000" & "0000" & "0000" & "0000" when "11";
 		
 	with carryInCtrl select Carry_In <= -- MX for ALU carry in
 		'0' when "000", -- 0
@@ -240,14 +274,24 @@ architecture ExecUnitImpl of ExecutionUnit is
 	f_stO <= changes_O and ld_O_in and ALU_Overflow_Out;
 	f_clO <= changes_O and ld_O_in and not ALU_Overflow_Out;
 	
-	f_stC <= changes_C and ld_C_in and ALU_Carry_Out;
-	f_clC <= changes_C and ld_C_in and not ALU_Carry_Out;
+	f_stC <= (changes_C and ld_C_in and ALU_Carry_Out) or stc;
+	f_clC <= (changes_C and ld_C_in and not ALU_Carry_Out) or clc;
+	
+	f_stI <= sti;
+	f_clI <= cli;
 	
 	f_stP <= changes_P and ld_P_in and ALU_Parity_Out;
 	f_clP <= changes_P and ld_P_in and not ALU_Parity_Out;
 	
+	flags_out <= f_flagsOut;
 	
+	c_dec <= dec_cx;
+	c_zero <=	'1' when c_reg_out = "0000" & "0000" & "0000" & "0000" else
+					'0';
+					
+	ALU_opCode <= operation;
 	
-		
+	second_arg_zero <=	'1' when unsigned(ALU_secondArgument) = 0 else
+								'0' when not (unsigned(ALU_secondArgument) = 0);
 	
 	end ExecUnitImpl;

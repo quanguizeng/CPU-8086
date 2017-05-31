@@ -9,11 +9,37 @@ entity intr is
 			
 			IVTPAddrOut: out std_logic_vector(15 downto 0); -- Interrupt Vector Table Pointer
 			IVTDisp: out std_logic_vector(15 downto 0); -- Offset of the interrupt routine
-			interrupt: out std_logic -- Interrupt signal
+			interrupt: out std_logic; -- Interrupt signal
+			
+			st_wrong_op_code : in std_logic;
+			st_wrong_arg : in std_logic;
+			st_div_zero : in std_logic;
+			cl_wrong_op_code : in std_logic;
+			cl_wrong_arg : in std_logic;
+			cl_div_zero : in std_logic;
+			
+			wrong_op_code : out std_logic;
+			wrong_arg : out std_logic;
+			div_zero : out std_logic;
+			
+			br_in : in std_logic_vector(15 downto 0);
+			ld_br : in std_logic;
+			mx_br : in std_logic
 	);
 end entity intr;
 
 architecture behavioral of intr is
+
+component FlipFlop is
+port
+(
+	set : IN STD_LOGIC; -- load/enable.
+	clr : IN STD_LOGIC; -- async. clear.
+	clk : IN STD_LOGIC; -- clock.
+	sig_out : OUT STD_LOGIC -- output
+);
+end component FlipFlop;
+
 signal perIntr: std_logic; -- Do we have an interrupt signal coming from pers
 signal UEXT: std_logic_vector(2 downto 0); -- Binary representation of the interrupt line
 
@@ -63,6 +89,14 @@ registerIVTP: register16
 registerBR: register16
 	port map(BR_reg_in, BR_ld, BR_inc, BR_dec, BR_clr, clk, BR_shl, BR_r_bit, BR_shr, BR_l_bit, BR_reg_out);
 
+wrong_op_code_int : FlipFlop
+	port map(st_wrong_op_code, cl_wrong_op_code, clk, wrong_op_code); -- 1000
+wrong_arg_int : FlipFlop
+	port map(st_wrong_arg, cl_wrong_arg, clk, wrong_arg);					-- 1001
+div_zero_int : FlipFlop
+	port map(st_div_zero, cl_div_zero, clk, div_zero);						-- 1010
+
+
 -- Is at least one line "1"?
 perIntr <= interruptLines(0) or interruptLines(1) or interruptLines(2) or interruptLines(3) or interruptLines(4) or interruptLines(5) or interruptLines(6) or interruptLines(7);
 
@@ -80,15 +114,15 @@ UEXT <=
 	"110" when interruptLines(6) = '1' else
 	"111" when interruptLines(7) = '1';
 	
-BR_reg_in <= "0000000000000" & UEXT;
+
+BR_ld <= ld_br;
+BR_reg_in <=	"0000000000000" & UEXT when mx_br = '0' else
+					br_in when mx_br = '1';
 
 intrOffset <= "000000000000" & BR_reg_out(2 downto 0) & "0";
 IVTDisp <= intrOffset;
 IVTPAddrOut <= IVTP_reg_out;
 
 IVTP_reg_in <= "0000000000000000";
-
-
-
 	
 end behavioral;
