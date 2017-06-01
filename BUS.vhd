@@ -97,6 +97,14 @@ ARCHITECTURE description OF BUS_block IS
 		);
 	END COMPONENT register8;
 	
+	COMPONENT ROM IS
+		PORT (
+			addr : IN STD_LOGIC_VECTOR(15 DOWNTO 0); -- address
+			dat_out  : OUT STD_LOGIC_VECTOR(7 DOWNTO 0); -- data to write
+			clk : IN STD_LOGIC -- clock
+		);
+	END COMPONENT ROM;
+	
 	SIGNAL mar_val : STD_LOGIC_VECTOR(15 DOWNTO 0);
 	SIGNAL mdr_val : STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL mdr_in : STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -110,10 +118,15 @@ ARCHITECTURE description OF BUS_block IS
 	
 	SIGNAL mar_in : STD_LOGIC_VECTOR(15 DOWNTO 0);
 	
+	SIGNAL rom_out : STD_LOGIC_VECTOR(7 DOWNTO 0);
+	
 BEGIN
 	mdr_in <=	mem_out when mx_mdr = "00" else
 					dw_l_val when mx_mdr = "01" else
-					dw_h_val when mx_mdr = "10";
+					dw_h_val when mx_mdr = "10" else
+					rom_out when mx_mdr = "11";
+	
+	rom_mem: ROM PORT MAP(addr => mar_val, dat_out => rom_out, clk => clk);
 	
 -- 000 : load into dw from mdr
 -- 001 : load into dw from PC_val
@@ -122,7 +135,6 @@ BEGIN
 -- 100 : load into dw from BX_val
 -- 101 : load into dw from CX_val
 -- 110 : load into dw from DX_val
-	
 	
 	dw_l_in <=	mdr_val when mx_dw = "000" else
 					PC_val(7 DOWNTO 0) when mx_dw = "001" else

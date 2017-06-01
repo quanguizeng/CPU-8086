@@ -213,56 +213,50 @@ architecture ExecUnitImpl of ExecutionUnit is
 		port map(clk, f_stS, f_clS, f_stZ, f_clZ, f_stP, f_clP, f_stC, f_clC, f_stO, f_clO, f_stT, f_clT, f_stI, f_clI, f_ldFlags, f_FlagsIn, f_FlagsOut);
 	ALUCom: ALU
 		port map(ALU_firstArgument, ALU_secondArgument, ALU_opCode, ALU_Carry_In, ALU_Carry_Out, ALU_Parity_Out, ALU_Adjust_Out, ALU_Overflow_Out, ALU_Zero_Out, ALU_Sign_Out, ALU_Result);
+	
+
+	ALU_firstArgument <=	a_reg_out when firstArgCtrl = "000" else
+								b_reg_out when firstArgCtrl = "001" else
+								c_reg_out when firstArgCtrl = "010" else
+								d_reg_out when firstArgCtrl = "011" else
+								SP_in when firstArgCtrl = "100" else
+								"0000000000000000" when firstArgCtrl = "101" else
+								immediateArg when firstArgCtrl = "111" else
+								"1111111111111111" when firstArgCtrl = "110";
+	
+	ALU_secondArgument <=	a_reg_out when secondArgCtrl = "000" else
+									b_reg_out when secondArgCtrl = "001" else
+									c_reg_out when secondArgCtrl = "010" else
+									d_reg_out when secondArgCtrl = "011" else
+									SP_in when secondArgCtrl = "100" else
+									"0000000000000000" when secondArgCtrl = "101" else
+									immediateArg when secondArgCtrl = "111" else
+									"1111111111111111" when secondArgCtrl = "110";
+	
+	a_reg_in <=	memoryIn when registerACtrl = "00" else
+					ALU_Result when registerACtrl = "01" else
+					device_in when registerACtrl = "10" else
+					d_reg_out when registerACtrl = "11";
 		
-	with firstArgCtrl select ALU_firstArgument <= -- MX for the first argument
-		a_reg_out when "000", -- Register A
-		b_reg_out when "001", -- Register B
-		c_reg_out when "010", -- Register C
-		d_reg_out when "011", -- Register D
-		SP_in when "100", -- Stack pointer
-		"0000000000000000" when "101", -- 0
-		"1111111111111111" when "110", -- -1
-		immediateArg when "111"; -- Immediate argument
+	b_reg_in <=	memoryIn when registerBCtrl = '0' else
+					ALU_Result when registerBCtrl = '1';
+	
+	c_reg_in <=	memoryIn when registerCCtrl = '0' else
+					ALU_Result when registerCCtrl = '1';
 		
-	with secondArgCtrl select ALU_secondArgument <= -- MX for the second argument
-		a_reg_out when "000", -- Register A
-		b_reg_out when "001", -- Register B
-		c_reg_out when "010", -- Register C
-		d_reg_out when "011", -- Register D
-		SP_in when "100", -- Stack pointer
-		"0000000000000000" when "101", -- 0
-		"1111111111111111" when "110", -- -1
-		immediateArg when "111"; -- Immediate argument
-		
-	with registerACtrl select a_reg_in <= -- MX for register A input
-		memoryIn when "00",
-		ALU_Result when "01",
-		device_in when "11",
-		d_reg_out when "10";
-		
-	with registerBCtrl select b_reg_in <= -- MX for register B input
-		memoryIn when '0',
-		ALU_Result when '1';
-		
-	with registerCCtrl select c_reg_in <= -- MX for register C input
-		memoryIn when '0',
-		ALU_Result when '1';
-		
-	with registerDCtrl select d_reg_in <= -- MX for register D input
-		memoryIn when "00",
-		ALU_Result when "01",
-		a_reg_out when "10",
-		"0000" & "0000" & "0000" & "0000" when "11";
-		
-	with carryInCtrl select Carry_In <= -- MX for ALU carry in
-		'0' when "000", -- 0
-		'1' when "001", -- 1
-		f_FlagsOut(3) when "010", -- Flags carry bit
-		ALU_firstArgument(0) when "011", -- Lowest bit of the first argument. Used in rotations
-		ALU_firstArgument(15) when "100", -- Highest bit of the first argument. Used in rotations and arithmetic shifts
-		ALU_secondArgument(0) when "101", -- Lowest bit of the second argument. Used in rotations
-		ALU_firstArgument(15) when "110", -- Highest bit of the second argument. Used in rotations and arithmetic shifts
-		'1' when "111"; -- Placeholder
+	d_reg_in <=	memoryIn when registerDCtrl = "00" else
+					ALU_Result when registerDCtrl = "01" else
+					a_reg_out when registerDCtrl = "10" else
+					"0000" & "0000" & "0000" & "0000" when registerDCtrl = "11";
+	
+	Carry_In <=	'0' when carryInCtrl = "000" else -- 0
+					'1' when carryInCtrl = "001" else -- 1
+					f_FlagsOut(3) when carryInCtrl = "010" else -- Flags carry bit
+					ALU_firstArgument(0) when carryInCtrl = "011" else -- Lowest bit of the first argument. Used in rotations
+					ALU_firstArgument(15) when carryInCtrl = "100" else -- Highest bit of the first argument. Used in rotations and arithmetic shifts
+					ALU_secondArgument(0) when carryInCtrl = "101" else -- Lowest bit of the second argument. Used in rotations
+					ALU_firstArgument(15) when carryInCtrl = "110" else -- Highest bit of the second argument. Used in rotations and arithmetic shifts
+					'1' when carryInCtrl = "111"; -- Placeholder
 		
 	-- changes Sign flag if the operation is supposed to change it, load signal is active and ALU flag is (in)active
 	f_stS <= changes_S and ld_S_in and ALU_Sign_Out;

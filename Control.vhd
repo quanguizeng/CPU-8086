@@ -5,7 +5,6 @@ use IEEE.NUMERIC_STD.ALL;
 ENTITY Control_unit IS
 	PORT(
 		
-		
 		ld_mar : OUT STD_LOGIC;
 		inc_mar : OUT STD_LOGIC;
 		mx_mar : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
@@ -166,10 +165,28 @@ ARCHITECTURE description OF Control_unit IS
 			shl : IN STD_LOGIC; -- shift left
 			r_bit : IN STD_LOGIC; -- new 0 bit after left shift
 			shr : IN STD_LOGIC; -- shift right
-			l_bit : IN STD_LOGIC; -- new 15 bit after right shift
+			l_bit : IN STD_LOGIC; -- new 7 bit after right shift
 			reg_out : OUT STD_LOGIC_VECTOR(7 DOWNTO 0) -- output
 		);
 	END COMPONENT register8;
+	
+	
+	
+	COMPONENT register16 IS
+		PORT (
+			reg_in : IN STD_LOGIC_VECTOR(15 DOWNTO 0); -- input.
+			ld : IN STD_LOGIC; -- load/enable.
+			inc : IN STD_LOGIC; -- increment
+			dec : IN STD_LOGIC; -- decrement
+			clr : IN STD_LOGIC; -- async. clear.
+			clk : IN STD_LOGIC; -- clock.
+			shl : IN STD_LOGIC; -- shift left
+			r_bit : IN STD_LOGIC; -- new 0 bit after left shift
+			shr : IN STD_LOGIC; -- shift right
+			l_bit : IN STD_LOGIC; -- new 15 bit after right shift
+			reg_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0) -- output
+		);
+	END COMPONENT register16;
 	
 	COMPONENT mikroMemory IS
 		PORT (
@@ -194,8 +211,15 @@ ARCHITECTURE description OF Control_unit IS
 	SIGNAL ld_res : STD_LOGIC;
 	SIGNAL ld_flags : STD_LOGIC;
 	SIGNAL mx_res : STD_LOGIC;
+	
+	SIGNAL cnt_val : STD_LOGIC_VECTOR(15 DOWNTO 0);
+	SIGNAL cnt_inc : STD_LOGIC;
 BEGIN
 	st_wrong_arg <= '0';
+	
+	cnt_inc <=	mPC_out(0);
+	
+	cnt : register16 PORT MAP(reg_in => "0000000000000000", ld => '0', inc => cnt_inc, dec => '0', clr => '0', shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => cnt_val, clk => clk);
 
 	mPC : register8 PORT MAP (reg_in => branch_dst, ld => mPC_ld, inc => mPC_inc, dec => '0', clr => '0', shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => mPC_out, clk => clk);
 	mMEM : mikroMemory PORT MAP(addr => mPC_out, dat_out => mComand, clk => clk);
@@ -310,7 +334,9 @@ BEGIN
 						'1'when (branch_id = "00010011" and wrong_op_code = '0') else
 						'1'when (branch_id = "00010100" and wrong_arg = '0') else
 						'1'when (branch_id = "00010101" and div_zero = '0') else
-						'1'when (branch_id = "00010110" and interrupt = '0');
+						'1'when (branch_id = "00010110" and interrupt = '0') else
+						'1'when (branch_id = "00011000" and not(cnt_val = "0000010000000000")) else
+						'0';
 
 	case_branch <= '1' when branch_id = "00010111" else
 						'0' when not(branch_id = "00010111");

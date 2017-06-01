@@ -4,7 +4,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity ALU is
 	port (FirstArgument, SecondArgument: in std_logic_vector(15 downto 0); -- ALU arguments
-			Operation: in std_logic_vector(5 downto 0); -- Operation code
+			Operation: in std_logic_vector(5 downto 0) := "000000"; -- Operation code
 			Carry_In: in std_logic; -- Carry from the previous round
 			
 			-- Flags

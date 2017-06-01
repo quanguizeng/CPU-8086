@@ -658,10 +658,13 @@ ARCHITECTURE description OF CPU_8086 IS
 	
 	
 	SIGNAL ucitana_memorija : STD_LOGIC := '0';
+	
+	SIGNAL IR_adr_or_imm : STD_LOGIC_VECTOR(15 DOWNTO 0);
 	-- END OTHER SIGNALS --
 	
 -- END SIGNALS --
 BEGIN
+		IR_adr_or_imm <= IR_out(7 DOWNTO 0) & IR_out(15 DOWNTO 8);
 		start_ff : FlipFlop PORT MAP(set => st_start, clr => cl_start, sig_out => START, clk => clk);
 		init_ff : FlipFlop PORT MAP(set => '1', clr => '0', clk => clk, sig_out => init_sve);
 
@@ -678,7 +681,7 @@ BEGIN
 		(
 			PC_adr => PC_out,
 			SP_adr => SP_out,
-			IR_adr => IR_out(7 DOWNTO 0) & IR_out(15 DOWNTO 8),
+			IR_adr => IR_adr_or_imm,
 			ALU_adr => ADDR_add_out,
 			ld_mar => ld_mar,
 			mx_mar => mx_mar,
@@ -690,7 +693,7 @@ BEGIN
 			BX_val => BX_out,
 			CX_val => CX_out,
 			DX_val => DX_out,
-			imm_val => IR_out(7 DOWNTO 0) & IR_out(15 DOWNTO 8),
+			imm_val => IR_adr_or_imm,
 			
 			ld_dw_l => ld_dw_l,
 			ld_dw_h => ld_dw_h,
@@ -851,7 +854,7 @@ BEGIN
 			ld_O_in => ld_O,
 			changes_C => changes_C,
 			ld_C_in => ld_C,
-			immediateArg => IR_out(7 DOWNTO 0) & IR_out(15 DOWNTO 8),
+			immediateArg => IR_adr_or_imm,
 			device_in => DEVice_reg,
 			memoryIn => DW_out,
 			registerACtrl => mx_AX,

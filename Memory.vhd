@@ -21,9 +21,7 @@ ARCHITECTURE description OF memory IS
 
    TYPE ram_type IS ARRAY (0 TO (2**16-1)) OF STD_LOGIC_VECTOR(7 DOWNTO 0);
    SIGNAL ram : ram_type;
-
 BEGIN
-	
 	process(clk)
 	begin
 		if rising_edge(clk) then
@@ -31,8 +29,8 @@ BEGIN
 				ram(to_integer(unsigned(addr))) <= dat_in;
 			end if;
 		end if;
-	end process RamProc;
+	end process;
 
 	dat_out <= ram(to_integer(unsigned(addr)));
-  
+	
 END description;
