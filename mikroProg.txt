@@ -1,0 +1,220 @@
+00	ld_mdr, mx_mdr1, mx_mdr0
+01	mem_write
+02	inc_mar, if (!mem_loaded) br 00
+03	mx_pc1, ld_pc
+04	if (!start) br 04
+-- load first byte
+05	ld_mar, incPC
+06	ld_mdr
+07	ld_ir0
+08	if (one_byte) br 0F
+-- load second byte
+09	ld_mar, incPC
+0A	ld_mdr
+0B	ld_ir1, if (two_byte) br 0F
+-- load third byte
+0C	ld_mar, incPC
+0D	ld_mdr
+0E	ld_ir2
+-- exec
+0F	case
+-- HLT
+10	cl_start, br 89
+--NOP
+11	br 89
+-- IRET
+12	ld_mar, incSP, mx_mar1
+13	ld_mdr
+14	ld_dw_l, ld_mar, mx_mar1, incSP
+15	ld_mdr
+16	ld_dw_h
+17	ld_psw
+-- RET
+18	ld_mar, incSP, mx_mar1
+19	ld_mdr
+1A	ld_dw_l, ld_mar, incSP, mx_mar1
+1B	ld_mdr
+1C	ld_dw_h
+1D	ld_pc, br 89
+-- CLI
+1E	clr_i, br 89
+-- STI
+1F	set_i, br 89
+-- CLC
+20	clr_c, br 89
+-- STC
+21	set_c, br 89
+-- JE
+22	if (!PSW_Z) br 89
+23	mx_a, mx_b0, ld_pc, mx_pc0, br 89
+-- JNE
+24	if (PSW_Z) br 89
+25	mx_a, mx_b0, ld_pc, mx_pc0, br 89
+-- JG
+26	if(PSW_N or PSW_Z) br 89
+27	mx_a, mx_b0, ld_pc, mx_pc0, br 89
+-- JGE
+28	if (PSW_N) br 89
+29	mx_a, mx_b0, ld_pc, mx_pc0, br 89
+-- JL
+2A	if (!PSW_N) br 89
+2B	mx_a, mx_b0, ld_pc, mx_pc0, br 89
+-- JLE
+2C	if (!PSW_N and !PSW_Z) br 89
+2D	mx_a, mx_b0, ld_pc, mx_pc0, br 89
+-- JP
+2E	if (!PSW_P) br 89
+2F	mx_a, mx_b0, ld_pc, mx_pc0, br 89
+-- JNP
+30	if (PSW_P) br 89
+31	mx_a, mx_b0, ld_pc, mx_pc0, br 89
+-- JO
+32	if (!PSW_O) br 89
+33	mx_a, mx_b0, ld_pc, mx_pc0, br 89
+-- JNO
+34	if (PSW_O) br 89
+35	mx_a, mx_b0, ld_pc, mx_pc0, br 89
+-- JMP
+36	mx_a, mx_b0, ld_pc, mx_pc0, br 89
+-- LOOP
+37	dec_cx
+38	if (c_zero) br 89
+39	mx_a, mx_b0, ld_pc, mx_pc0, br 89
+-- LOOPE
+3A	dec_cx
+3B	if (c_zero or !PSW_Z) br 89
+3C	mx_a, mx_b0, ld_pc, mx_pc0, br 89
+-- LOOPNE
+3D	dec_cx
+3E	if (c_zero or PSW_Z) br 89
+3F	mx_a, mx_b0, ld_pc, mx_pc0, br 89
+-- CALL
+40	ld_dw_l, ld_dw_h, mx_dw0, decSP
+41	ld_mdr, mx_mdr1, ld_mar, mx_mar1
+42	mem_write, decSP
+43	ld_mdr, mx_mdr0, ld_mar, mx_mar1
+44	mem_write
+45	mx_a, mx_b0, ld_pc, mx_pc0, br 89
+-- INT
+46	ld_dw_l, ld_dw_h, mx_dw0, decSP
+47	ld_mdr, mx_mdr1, ld_mar, mx_mar1
+48	mem_write, decSP
+49	ld_mdr, mx_mdr0, ld_mar, mx_mar1
+4A	mem_write
+4B	ld_dw_l, ld_dw_h, mx_dw1, decSP
+4C	ld_mdr, mx_mdr1, ld_mar, mx_mar1
+4D	mem_write, decSP
+4E	ld_mdr, mx_mdr0, ld_mar, mx_mar1
+4F	mem_write
+50	mx_a, mx_b0, ld_pc, mx_pc0, br 04
+-- NEG
+51	ALU_op_code0, ALU_op_code1, ALU_op_code2, ld_res, ld_flags, mx_res, br 89
+-- NOT
+52	ALU_op_code0, ALU_op_code2, ld_res, ld_flags, mx_res, br 89
+-- INC
+53	mx_PSWC0, ld_res, ld_flags, mx_res, br 89
+-- DEC
+54	mx_PSWC0, ALU_op_code0, ld_res, ld_flags, mx_res, br 89
+-- RCL
+55	mx_PSWC1, ALU_op_code0, ALU_op_code3, ld_res, ld_flags, mx_res, br 89
+-- RCR
+56	mx_PSWC1, ALU_op_code1, ALU_op_code3, ld_res, ld_flags, mx_res, br 89
+-- ROL
+57	mx_PSWC2, ALU_op_code0, ALU_op_code3, ld_res, ld_flags, mx_res, br 89
+-- ROR
+58	mx_PSWC0, mx_PSWC1, ALU_op_code1, ALU_op_code3, ld_res, ld_flags, mx_res, br 89
+-- SAHR
+59	br 89
+-- SAR
+5A	mx_PSWC2, ALU_op_code1, ALU_op_code3, ld_res, ld_flags, mx_res, br 89
+-- SAL, SHL
+5B	ALU_op_code0, ALU_op_code3, ld_res, ld_flags, mx_res, br 89
+-- SHR
+5C	ALU_op_code1, ALU_op_code3, ld_res, ld_flags, mx_res, br 89
+-- POP
+5D	ld_mar, mx_mar1, incSP
+5E	ld_mdr
+5F	ld_dw_l, ld_mar, incSP, mx_mar1
+60	ld_mdr
+61	ld_dw_h
+62	ld_res, br 89
+-- PUSH
+63	ld_dw_l, ld_dw_h, ld_dw_res, decSP
+64	ld_mar, mx_mar1, ld_mdr, mx_mdr1
+65	mem_write, decSP
+66	ld_mar, mx_mar1, ld_mdr, mx_mdr0
+67	mem_write, br 89
+-- ADD
+68	ld_res, ld_flags, br 89
+-- SUB
+69	ALU_op_code0, ld_res, ld_flags, br 89
+-- MUL
+6A	ALU_op_code0, ALU_op_code1, ALU_op_code3, ld_res, ld_flags, br 89
+-- AND
+6B	ALU_op_code1, ld_res, ld_flags, br 89
+-- OR
+6C	ALU_op_code0, ALU_op_code1, ld_res, ld_flags, br 89
+-- XOR
+6D	ALU_op_code2, ld_res, ld_flags, br 89
+-- CMP
+6E	ALU_op_code0, ld_flags, br 89
+-- TEST
+6F	ALU_op_code1, ld_flags, br 89
+-- DIV
+70	if (second_arg_zero) br 88
+71	ld_dx, mx_dx1, mx_dx0
+72	ALU_op_code0, ld_ax, mx_ax0, ld_flags, inc_dx
+73	if (!PSW_C) br 72
+74	dec_dx, ld_ax, mx_ax0
+75	ld_ax, ld_dx, mx_ax1, mx_dx1, br 89
+-- LDV
+76	ld_dw_l, ld_dw_h, mx_dw0, mx_dw1, mx_dw2
+77	ld_res, br 89
+-- LDR
+78	ld_mar, mx_mar0
+79	ld_mdr
+7A	ld_dw_l, inc_mar
+7B	ld_mdr,
+7C	ld_dw_h
+7D	ld_res, br 89
+-- STR
+7E	ld_mar, mx_mar0, ld_dw_l, ld_dw_h, ld_dw_res
+7F	ld_mdr,	mx_mdr0
+80	mem_write
+81	ld_mdr, mx_mdr1, inc_mar
+82	mem_write, br 89
+-- MOV
+83	ALU_op_code1, ALU_op_code2, ld_res, mx_res
+84	ALI_op_code_0, ALU_op_code2, ld_res, mx_res, br 89
+-- IN
+85	ld_ax, mx_ax0, mx_ax1, br 89
+-- OUT
+86	ld_dev, br 89
+-- WRONG OP CODE
+87	st_wrong_op_code, br 89
+-- DIV ZERO
+88	st_div_zero
+-- intr
+89	if (!wrong_op_code) br 8B
+8A	br_in0, mx_br, ld_br, cl_wrong_op_code, br 91
+8B	if (!wrong_arg) br 8D
+8C	br_in1, mx_br, ld_br, cl_wrong_arg, br 91
+8D	if (!div_zero) br 8F
+8E	br_in1, br_in0, mx_br, ld_br, cl_div_zero, br 91
+8F	if (!interrupt) br 04
+90	ld_br
+91	decSP, ld_dw_l, ld_dw_h, mx_dw0
+92	ld_mar, ld_mdr, mx_mdr1, mx_mar1
+93	mem_write, decSP
+94	ld_mdr, mx_mdr0, ld_mar, mx_mar1
+95	mem_write, decSP, ld_dw_l, ld_dw_h, mx_dw1
+96	ld_mar, ld_mdr, mx_mar1, mx_mdr1
+97	mem_write, decSP
+98	ld_mdr, mx_mdr0, ld_mar, mx_mar1
+99	mem_write
+9A	ld_mar, mx_mar0, mx_mar1
+9B	ld_mdr
+9C	ld_dw_l, inc_mar
+9D	ld_mdr
+9E	ld_dw_h
+9F	ld_pc, br 04
