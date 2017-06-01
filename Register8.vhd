@@ -19,7 +19,7 @@ ENTITY register8 IS
 	);
 	END register8;
 ARCHITECTURE description OF register8 IS
-	SIGNAL reg_val : STD_LOGIC_VECTOR(7 DOWNTO 0);
+	SIGNAL reg_val : STD_LOGIC_VECTOR(7 DOWNTO 0) := "00000000";
 BEGIN
 	reg_out <= reg_val;
 	process(clk, clr)

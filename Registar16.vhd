@@ -19,7 +19,7 @@ ENTITY register16 IS
 	);
 	END register16;
 ARCHITECTURE description OF register16 IS
-	SIGNAL reg_val : STD_LOGIC_VECTOR(15 DOWNTO 0);
+	SIGNAL reg_val : STD_LOGIC_VECTOR(15 DOWNTO 0) := "0000000000000000";
 BEGIN
 	reg_out <= reg_val;
 	process(clk, clr)

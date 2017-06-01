@@ -46,10 +46,10 @@ ENTITY BUS_block IS
 
 		dat_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);	-- value from DW
 
-		clk : IN STD_LOGIC	-- clock
+		clk : IN STD_LOGIC;	-- clock
 		
 		
-		--init_done : OUT STD_LOGIC
+		init_done : OUT STD_LOGIC
 	);
 	END BUS_block;
 ARCHITECTURE description OF BUS_block IS

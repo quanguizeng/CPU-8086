@@ -174,7 +174,7 @@ ARCHITECTURE description OF Control_unit IS
 	COMPONENT mikroMemory IS
 		PORT (
 			addr : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- address
-			dat_out  : OUT STD_LOGIC_VECTOR(75 DOWNTO 0); -- data to write
+			dat_out  : OUT STD_LOGIC_VECTOR(76 DOWNTO 0); -- data to write
 			clk : IN STD_LOGIC -- clock
 		);
 	END COMPONENT mikroMemory;
@@ -185,7 +185,7 @@ ARCHITECTURE description OF Control_unit IS
 	SIGNAL condition : STD_LOGIC;
 	SIGNAL case_branch : STD_LOGIC;
 	
-	SIGNAL mComand : STD_LOGIC_VECTOR(75 DOWNTO 0);
+	SIGNAL mComand : STD_LOGIC_VECTOR(76 DOWNTO 0);
 	SIGNAL mPC_out : STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL mPC_inc : STD_LOGIC;
 	SIGNAL mPC_ld : STD_LOGIC;
@@ -211,7 +211,7 @@ BEGIN
 	ld_ir1 <= mComand(68);
 	ld_ir2 <= mComand(67);
 	ld_pc <= mComand(66);
-	mx_pc <= "0" & mComand(65);
+	mx_pc <= mComand(76) & mComand(65);
 	inc_pc <= mComand(64);
 	cl_start <= mComand(63);
 	ld_dw_l <= mComand(62);

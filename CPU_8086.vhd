@@ -5,6 +5,12 @@ USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
 
 ENTITY CPU_8086 IS
+	PORT (
+		clk : IN STD_LOGIC;
+		Device_output : INOUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+		
+		st_start : IN STD_LOGIC
+	);
 END CPU_8086;
 
 ARCHITECTURE description OF CPU_8086 IS
@@ -49,9 +55,9 @@ ARCHITECTURE description OF CPU_8086 IS
 
 			dat_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);	-- value from DW
 
-			clk : IN STD_LOGIC	-- clock
+			clk : IN STD_LOGIC;	-- clock
 			
-			--init_done : OUT STD_LOGIC
+			init_done : OUT STD_LOGIC
 		);
 	END COMPONENT BUS_block;
 	
@@ -647,11 +653,8 @@ ARCHITECTURE description OF CPU_8086 IS
 	-- OTHER SIGNALS --
 	SIGNAL START : STD_LOGIC;
 	SIGNAL cl_start : STD_LOGIC;
-	SIGNAL st_start : STD_LOGIC;
 	
 	SIGNAL init_sve : STD_LOGIC := '0';
-	
-	SIGNAL clk : STD_LOGIC;
 	
 	
 	SIGNAL ucitana_memorija : STD_LOGIC := '0';
@@ -697,10 +700,10 @@ BEGIN
 			mem_write => mem_wr,
 			mdr_out => MDR_out,
 			dat_out => DW_out,
-			clk => clk
+			clk => clk,
 			
 			
-			--init_done => ucitana_memorija
+			init_done => ucitana_memorija
 		);
 		
 		fetch_b : FETCH PORT MAP
@@ -986,6 +989,8 @@ BEGIN
 			div_zero => div_zero,
 			interrupt => interrupt,
 			
+			ld_dev => Device_wr,
+			
 			
 			HLT => HLT,
 			NOP => NOP,
@@ -1052,4 +1057,10 @@ BEGIN
 			res_mx => First_arg,
 			clk => clk
 		);
+		
+		Device_reg <=	AX_out when Device_wr = '1' else
+							Device_reg when Device_wr = '0';
+		
+		Device_output <= Device_reg;
+		
 END description;

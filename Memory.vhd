@@ -10,10 +10,10 @@ ENTITY memory IS
 		addr : IN STD_LOGIC_VECTOR(15 DOWNTO 0); -- address
 		dat_in  : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- data to write
 		dat_out : OUT STD_LOGIC_VECTOR(7 DOWNTO 0); -- read data
-		clk : IN STD_LOGIC -- clock
+		clk : IN STD_LOGIC; -- clock
 		
 		
-		--init_done : OUT STD_LOGIC
+		init_done : OUT STD_LOGIC
 	);
 END ENTITY memory;
 
