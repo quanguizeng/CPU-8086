@@ -335,7 +335,7 @@ BEGIN
 						'1'when (branch_id = "00010100" and wrong_arg = '0') else
 						'1'when (branch_id = "00010101" and div_zero = '0') else
 						'1'when (branch_id = "00010110" and interrupt = '0') else
-						'1'when (branch_id = "00011000" and not(cnt_val = "0000010000000000")) else
+						'1'when (branch_id = "00011000" and not(cnt_val = "0000001111111111")) else
 						'0';
 
 	case_branch <= '1' when branch_id = "00010111" else
@@ -343,61 +343,61 @@ BEGIN
 	
 	branch <= condition or case_branch;
 	
-	branch_dst <=	mComand(7 DOWNTO 0) when condition = '1' else
-						"00001100" when (case_branch = '1' and HLT = '1') else
-						"00001101" when (case_branch = '1' and NOP = '1') else
-						"00001110" when (case_branch = '1' and IRET = '1') else
-						"00010100" when (case_branch = '1' and RET = '1') else
-						"00011010" when (case_branch = '1' and CLI = '1') else
-						"00011011" when (case_branch = '1' and STI = '1') else
-						"00011100" when (case_branch = '1' and CLC = '1') else
-						"00011101" when (case_branch = '1' and STC = '1') else
-						"00011110" when (case_branch = '1' and JE = '1') else
-						"00100000" when (case_branch = '1' and JNE = '1') else
-						"00100010" when (case_branch = '1' and JG = '1') else
-						"00100100" when (case_branch = '1' and JGE = '1') else
-						"00100110" when (case_branch = '1' and JL = '1') else
-						"00101000" when (case_branch = '1' and JLE = '1') else
-						"00101010" when (case_branch = '1' and JP = '1') else
-						"00101100" when (case_branch = '1' and JNP = '1') else
-						"00101110" when (case_branch = '1' and JO = '1') else
-						"00110000" when (case_branch = '1' and JNO = '1') else
-						"00110010" when (case_branch = '1' and JMP = '1') else
-						"00110011" when (case_branch = '1' and LOOP_ins = '1') else
-						"00110110" when (case_branch = '1' and LOOPE = '1') else
-						"00111001" when (case_branch = '1' and LOOPNE = '1') else
-						"00111100" when (case_branch = '1' and CALL = '1') else
-						"01000010" when (case_branch = '1' and INT = '1') else
-						"01001101" when (case_branch = '1' and NEG = '1') else
-						"01001110" when (case_branch = '1' and NOT_ins = '1') else
-						"01001111" when (case_branch = '1' and INC = '1') else
-						"01010000" when (case_branch = '1' and DEC = '1') else
-						"01010001" when (case_branch = '1' and RCL = '1') else
-						"01010010" when (case_branch = '1' and RCR = '1') else
-						"01010011" when (case_branch = '1' and ROL_ins = '1') else
-						"01010100" when (case_branch = '1' and ROR_ins = '1') else
-						"01010101" when (case_branch = '1' and SAHR = '1') else
-						"01010110" when (case_branch = '1' and SAR = '1') else
-						"01010111" when (case_branch = '1' and (SAL = '1' or SHL = '1')) else
-						"01011000" when (case_branch = '1' and SHR = '1') else
-						"01011001" when (case_branch = '1' and POP = '1') else
-						"01011111" when (case_branch = '1' and PUSH = '1') else
-						"01100100" when (case_branch = '1' and ADD = '1') else
-						"01100101" when (case_branch = '1' and SUB = '1') else
-						"01100110" when (case_branch = '1' and MUL = '1') else
-						"01100111" when (case_branch = '1' and AND_ins = '1') else
-						"01101000" when (case_branch = '1' and OR_ins = '1') else
-						"01101001" when (case_branch = '1' and XOR_ins = '1') else
-						"01101010" when (case_branch = '1' and CMP = '1') else
-						"01101011" when (case_branch = '1' and TEST = '1') else
-						"01101100" when (case_branch = '1' and DIV = '1') else
-						"01110010" when (case_branch = '1' and LDV = '1') else
-						"01110100" when (case_branch = '1' and LDR = '1') else
-						"01111010" when (case_branch = '1' and STR = '1') else
-						"10000000" when (case_branch = '1' and MOV = '1') else
-						"10000010" when (case_branch = '1' and IN_ins = '1') else
-						"10000011" when (case_branch = '1' and OUT_ins = '1') else
-						"10000100" when (case_branch = '1');
+	branch_dst <=   mComand(7 DOWNTO 0) when condition = '1' else
+                        "00010000" when (case_branch = '1' and HLT = '1') else
+                        "00010001" when (case_branch = '1' and NOP = '1') else
+                        "00010010" when (case_branch = '1' and IRET = '1') else
+                        "00011000" when (case_branch = '1' and RET = '1') else
+                        "00011110" when (case_branch = '1' and CLI = '1') else
+                        "00011111" when (case_branch = '1' and STI = '1') else
+                        "00100000" when (case_branch = '1' and CLC = '1') else
+                        "00100001" when (case_branch = '1' and STC = '1') else
+                        "00100010" when (case_branch = '1' and JE = '1') else
+                        "00100100" when (case_branch = '1' and JNE = '1') else
+                        "00100110" when (case_branch = '1' and JG = '1') else
+                        "00101000" when (case_branch = '1' and JGE = '1') else
+                        "00101010" when (case_branch = '1' and JL = '1') else
+                        "00101100" when (case_branch = '1' and JLE = '1') else
+                        "00101110" when (case_branch = '1' and JP = '1') else
+                        "00110000" when (case_branch = '1' and JNP = '1') else
+                        "00110010" when (case_branch = '1' and JO = '1') else
+                        "00110100" when (case_branch = '1' and JNO = '1') else
+                        "00110110" when (case_branch = '1' and JMP = '1') else
+                        "00110111" when (case_branch = '1' and LOOP_ins = '1') else
+                        "00111010" when (case_branch = '1' and LOOPE = '1') else
+                        "00111101" when (case_branch = '1' and LOOPNE = '1') else
+                        "01000000" when (case_branch = '1' and CALL = '1') else
+                        "01000110" when (case_branch = '1' and INT = '1') else
+                        "01010001" when (case_branch = '1' and NEG = '1') else
+                        "01010010" when (case_branch = '1' and NOT_ins = '1') else
+                        "01010011" when (case_branch = '1' and INC = '1') else
+                        "01010100" when (case_branch = '1' and DEC = '1') else
+                        "01010101" when (case_branch = '1' and RCL = '1') else
+                        "01010110" when (case_branch = '1' and RCR = '1') else
+                        "01010111" when (case_branch = '1' and ROL_ins = '1') else
+                        "01011000" when (case_branch = '1' and ROR_ins = '1') else
+                        "01011001" when (case_branch = '1' and SAHR = '1') else
+                        "01011010" when (case_branch = '1' and SAR = '1') else
+                        "01011011" when (case_branch = '1' and (SAL = '1' or SHL = '1')) else
+                        "01011100" when (case_branch = '1' and SHR = '1') else
+                        "01011101" when (case_branch = '1' and POP = '1') else
+                        "01100011" when (case_branch = '1' and PUSH = '1') else
+                        "01101000" when (case_branch = '1' and ADD = '1') else
+                        "01101001" when (case_branch = '1' and SUB = '1') else
+                        "01101010" when (case_branch = '1' and MUL = '1') else
+                        "01101011" when (case_branch = '1' and AND_ins = '1') else
+                        "01101100" when (case_branch = '1' and OR_ins = '1') else
+                        "01101101" when (case_branch = '1' and XOR_ins = '1') else
+                        "01101110" when (case_branch = '1' and CMP = '1') else
+                        "01101111" when (case_branch = '1' and TEST = '1') else
+                        "01110000" when (case_branch = '1' and DIV = '1') else
+                        "01110110" when (case_branch = '1' and LDV = '1') else
+                        "01111000" when (case_branch = '1' and LDR = '1') else
+                        "01111110" when (case_branch = '1' and STR = '1') else
+                        "10000011" when (case_branch = '1' and MOV = '1') else
+                        "10000101" when (case_branch = '1' and IN_ins = '1') else
+                        "10000110" when (case_branch = '1' and OUT_ins = '1') else
+                        "10000111" when (case_branch = '1');
 	
 	
 	process(clk)
