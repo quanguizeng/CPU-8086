@@ -260,28 +260,30 @@ BEGIN
 	ld_flags <= mComand(37);
 	mx_res <= mComand(36);
 	
-	ld_ax <= ld_res when res_mx = "000" else
-				'1' when mComand(30) = '1' else
-				'0' when mComand(30) = '0';
+	ld_ax <= ld_res when res_mx = "000" and mComand(30) = '0' else
+				mComand(30);
+				
 	mx_ax <= mComand(29 DOWNTO 28) when mComand(30) = '1' else
-				"0" & mx_res when mComand(30) = '0';
+				"0" & mx_res;
 	
 	ld_bx <= ld_res when res_mx = "001" else
-				'0' when not (res_mx = "001");
+				'0';
+
 	mx_bx <= mx_res;
 	
 	ld_cx <= ld_res when res_mx = "010" else
-				'0' when not (res_mx = "010");
+				'0';
+
 	mx_cx <= mx_res;
 	
 	ld_dx <= ld_res when res_mx = "011" else
-				'1' when mComand(35) = '1' else
-				'0' when mComand(35) = '0';
+				mComand(35);
+
 	mx_dx <= mComand(34 DOWNTO 33) when mComand(35) = '1' else
-				"0" & mx_res when mComand(35) = '0';
+				"0" & mx_res;
 	
 	ld_sp <= ld_res when res_mx = "100" else
-				'0' when not(res_mx = "100");
+				'0';
 	
 	ld_PSW_C <= ld_flags;
 	ld_PSW_N <= ld_flags;
