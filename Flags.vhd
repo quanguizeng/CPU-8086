@@ -29,7 +29,7 @@ entity FlagsRegister is
 			ldFlags: in std_logic; -- load flags register
 			FlagsIn: in std_logic_vector(15 downto 0); -- data input lines
 			
-			FlagsOut: out std_logic_vector(15 downto 0) -- data output lines
+			FlagsOut: out std_logic_vector(15 downto 0) := "0000000001000000" -- data output lines
 			);
 end FlagsRegister;
 
