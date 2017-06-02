@@ -26,7 +26,10 @@ entity addr is
         
         ld_sp : IN STD_LOGIC;
         inc_sp : IN STD_LOGIC;
-        dec_sp : IN STD_LOGIC
+        dec_sp : IN STD_LOGIC;
+		  
+		  ALU_res : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+		  mx_sp : IN STD_LOGIC
     );
 end addr;
 
@@ -49,9 +52,10 @@ architecture addrImpl of addr is
 	
 	SIGNAL a: STD_LOGIC_VECTOR(15 DOWNTO 0);
 	SIGNAL b: STD_LOGIC_VECTOR(15 DOWNTO 0);
+	SIGNAL sp_input: STD_LOGIC_VECTOR(15 DOWNTO 0);
 begin
     add_out <= STD_LOGIC_VECTOR(unsigned(a) + unsigned(b));
-    sp: register16 PORT MAP(reg_in => sp_in, ld => ld_sp, inc => inc_sp, dec => dec_sp, clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => sp_out);
+    sp: register16 PORT MAP(reg_in => sp_input, ld => ld_sp, inc => inc_sp, dec => dec_sp, clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => sp_out);
     
 	 a <= ivtp_out when mx_a = '0' else
 			pc_out when mx_a = '1';
@@ -73,6 +77,8 @@ begin
     --  when "1" =>
     --    pc_in <= IR(7 DOWNTO 0) & IR(15 DOWNTO 8);
     --end case;
+	 
+	 sp_input <= sp_in when mx_sp = '0' else ALU_res;
     
 end addrImpl;
 

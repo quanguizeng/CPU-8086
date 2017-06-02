@@ -53,10 +53,7 @@ entity ExecutionUnit is
 		  ld_dx : in std_logic;
 		  
 		  inc_dx : in std_logic;
-		  dec_dx : in std_logic;
-		  
-		  ALU_Res_out : out std_logic_vector(15 downto 0)
-		  
+		  dec_dx : in std_logic
 	);
 end ExecutionUnit;
 
@@ -221,17 +218,6 @@ architecture ExecUnitImpl of ExecutionUnit is
 	BX_out <= b_reg_out;
 	CX_out <= c_reg_out;
 	DX_out <= d_reg_out;
-	
-	a_ld <= ld_ax;
-	b_ld <= ld_bx;
-	c_ld <= ld_cx;
-	d_ld <= ld_dx;
-	
-	d_inc <= inc_dx;
-	d_dec <= dec_dx;
-	c_dec <= dec_cx;
-	
-	ALU_Res_out <= ALU_Result;
 	
 
 	ALU_firstArgument <=	a_reg_out when firstArgCtrl = "000" else
