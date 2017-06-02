@@ -399,7 +399,6 @@ BEGIN
                         "10000110" when (case_branch = '1' and OUT_ins = '1') else
                         "10000111" when (case_branch = '1');
 	
-	
 	process(clk)
 	begin
 	end process;

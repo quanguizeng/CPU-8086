@@ -9,6 +9,8 @@ ENTITY CPU_8086 IS
 		clk : IN STD_LOGIC;
 		Device_output : INOUT STD_LOGIC_VECTOR(15 DOWNTO 0);
 		
+		INT_req : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+		
 		st_start : IN STD_LOGIC
 	);
 END CPU_8086;
@@ -561,8 +563,6 @@ ARCHITECTURE description OF CPU_8086 IS
 	SIGNAL IVTDSP : STD_LOGIC_VECTOR(15 DOWNTO 0);
 	SIGNAL interrupt : STD_LOGIC;
 	
-	SIGNAL INT_req : STD_LOGIC_VECTOR(7 DOWNTO 0);
-	
 	SIGNAL wrong_op_code : std_logic;
 	SIGNAL wrong_arg : std_logic;
 	SIGNAL div_zero : std_logic;
@@ -833,8 +833,8 @@ BEGIN
 			sp_in => SP_in,
 			sp_out => SP_out,
 			ld_sp => ld_sp,
-			inc_sp => dec_sp,
-			dec_sp => inc_sp,
+			inc_sp => inc_sp,
+			dec_sp => dec_sp,
 			
 			clk => clk
 		);
@@ -993,7 +993,7 @@ BEGIN
 			interrupt => interrupt,
 			
 			ld_dev => Device_wr,
-			
+			cl_start => cl_start,
 			
 			HLT => HLT,
 			NOP => NOP,

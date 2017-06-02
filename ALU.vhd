@@ -168,7 +168,11 @@ begin
 			end if;
 		when others =>
 			-- do SAHR
-			report "unreachable" severity failure;
+			Result_val <= "0000000000000000";
+			Carry_out <= '0';
+			Overflow_out <= '0';
+			
+			--report "unreachable" severity failure;
 		end case;
 		
 		-- Set Parity and Sign
@@ -178,6 +182,8 @@ begin
 		-- Set Zero
 		if Result_val = "0000000000000000" then
 			Zero_Out <= '1';
+		else
+			Zero_out <= '0';
 		end if;
 	end process;
 end Behavior;
