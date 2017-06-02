@@ -164,7 +164,7 @@ BEGIN
 	mdr: register8 PORT MAP(reg_in => mdr_in, ld => ld_mdr, inc => '0', dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => mdr_val);
 	dw_l: register8 PORT MAP(reg_in => dw_l_in, ld => ld_dw_l, inc => '0', dec => '0', clr => '0', clk => clk, r_bit => '0', shr => '0', shl => '0', l_bit => '0', reg_out => dw_l_val);
 	dw_h: register8 PORT MAP(reg_in => dw_h_in, ld => ld_dw_h, inc => '0', dec => '0', clr => '0', clk => clk, r_bit => '0', shr => '0', shl => '0', l_bit => '0', reg_out => dw_h_val);
-	dat_out <=  dw_h_val & dw_l_val;
+	dat_out <= dw_l_val & dw_h_val;
 	
 	mdr_out <= mdr_val;
 	

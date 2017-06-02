@@ -105,7 +105,7 @@ begin
 		
 			else
 				-- Overflow occurs
-				Result_val <= std_logic_vector(unsigned(FirstArgument) + unsigned(not SecondArgument) + 1);
+				Result_val <= std_logic_vector(unsigned(SecondArgument) - unsigned(FirstArgument));
 				
 				-- Set overflow
 				Overflow_Out <= '1';
