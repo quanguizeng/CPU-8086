@@ -232,7 +232,7 @@ architecture ExecUnitImpl of ExecutionUnit is
 	c_dec <= dec_cx;
 	
 	ALU_Res_out <= ALU_Result;
-	
+	ALU_Carry_In <= Carry_In;
 
 	ALU_firstArgument <=	a_reg_out when firstArgCtrl = "000" else
 								b_reg_out when firstArgCtrl = "001" else
