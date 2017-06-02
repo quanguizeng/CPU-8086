@@ -42,10 +42,10 @@ entity ExecutionUnit is
 		  stc : in std_logic;
 		  
 		  
-		  AX_out : in std_logic_vector(15 downto 0);
-		  BX_out : in std_logic_vector(15 downto 0);
-		  CX_out : in std_logic_vector(15 downto 0);
-		  DX_out : in std_logic_vector(15 downto 0);
+		  AX_out : OUT std_logic_vector(15 downto 0);
+		  BX_out : OUT std_logic_vector(15 downto 0);
+		  CX_out : OUT std_logic_vector(15 downto 0);
+		  DX_out : OUT std_logic_vector(15 downto 0);
 		  
 		  ld_ax : in std_logic;
 		  ld_bx : in std_logic;
@@ -213,6 +213,11 @@ architecture ExecUnitImpl of ExecutionUnit is
 		port map(clk, f_stS, f_clS, f_stZ, f_clZ, f_stP, f_clP, f_stC, f_clC, f_stO, f_clO, f_stT, f_clT, f_stI, f_clI, f_ldFlags, f_FlagsIn, f_FlagsOut);
 	ALUCom: ALU
 		port map(ALU_firstArgument, ALU_secondArgument, ALU_opCode, ALU_Carry_In, ALU_Carry_Out, ALU_Parity_Out, ALU_Adjust_Out, ALU_Overflow_Out, ALU_Zero_Out, ALU_Sign_Out, ALU_Result);
+	
+	AX_out <= a_reg_out;
+	BX_out <= b_reg_out;
+	CX_out <= c_reg_out;
+	DX_out <= d_reg_out;
 	
 
 	ALU_firstArgument <=	a_reg_out when firstArgCtrl = "000" else

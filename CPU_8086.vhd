@@ -237,10 +237,10 @@ ARCHITECTURE description OF CPU_8086 IS
 			clc : in std_logic;
 			stc : in std_logic;
 			
-			AX_out : in std_logic_vector(15 downto 0);
-			BX_out : in std_logic_vector(15 downto 0);
-			CX_out : in std_logic_vector(15 downto 0);
-			DX_out : in std_logic_vector(15 downto 0);
+			AX_out : out std_logic_vector(15 downto 0);
+			BX_out : out std_logic_vector(15 downto 0);
+			CX_out : out std_logic_vector(15 downto 0);
+			DX_out : out std_logic_vector(15 downto 0);
 		  
 			ld_ax : in std_logic;
 			ld_bx : in std_logic;
