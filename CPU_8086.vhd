@@ -685,7 +685,8 @@ BEGIN
 							"0" & IR_out(17 DOWNTO 16) when (div_reg = '1') else
 							"111" when (arlog_imm = '1') or (div_imm = '1') or (LDV = '1') else
 							"101" when (one_register_operand = '1');
-
+							
+							
 		bus_b : BUS_block PORT MAP
 		(
 			PC_adr => PC_out,
@@ -839,7 +840,7 @@ BEGIN
 			IR => IR_out,
 			add_out => ADDR_add_out,
 			  
-			sp_in => SP_in,
+			sp_in => DW_out,--SP_in,
 			sp_out => SP_out,
 			ld_sp => ld_sp,
 			inc_sp => inc_sp,
