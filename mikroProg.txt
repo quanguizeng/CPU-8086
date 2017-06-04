@@ -18,31 +18,31 @@
 0E	ld_ir2
 -- exec
 0F	case
--- HLT
+-- HLT	~done
 10	cl_start, br 89
---NOP
+--NOP	~done
 11	br 89
--- IRET
+-- IRET	~done
 12	ld_mar, incSP, mx_mar1
 13	ld_mdr
 14	ld_dw_l, ld_mar, mx_mar1, incSP
 15	ld_mdr
 16	ld_dw_h
 17	ld_psw
--- RET
+-- RET	~done
 18	ld_mar, incSP, mx_mar1
 19	ld_mdr
 1A	ld_dw_l, ld_mar, incSP, mx_mar1
 1B	ld_mdr
 1C	ld_dw_h
 1D	ld_pc, br 89
--- CLI
+-- CLI	~done
 1E	clr_i, br 89
--- STI
+-- STI	~done
 1F	set_i, br 89
--- CLC
+-- CLC	~done
 20	clr_c, br 89
--- STC
+-- STC	~done
 21	set_c, br 89
 -- JE
 22	if (!PSW_Z) br 89
@@ -88,14 +88,14 @@
 3D	dec_cx
 3E	if (c_zero or PSW_Z) br 89
 3F	mx_a, mx_b0, ld_pc, mx_pc0, br 89
--- CALL
+-- CALL	~done
 40	ld_dw_l, ld_dw_h, mx_dw0, decSP
 41	ld_mdr, mx_mdr1, ld_mar, mx_mar1
 42	mem_write, decSP
 43	ld_mdr, mx_mdr0, ld_mar, mx_mar1
 44	mem_write
 45	mx_a, mx_b0, ld_pc, mx_pc0, br 89
--- INT
+-- INT	~done
 46	ld_dw_l, ld_dw_h, mx_dw0, decSP
 47	ld_mdr, mx_mdr1, ld_mar, mx_mar1
 48	mem_write, decSP
@@ -106,7 +106,7 @@
 4D	mem_write, decSP
 4E	ld_mdr, mx_mdr0, ld_mar, mx_mar1
 4F	mem_write
-50	mx_a, mx_b0, ld_pc, mx_pc0, br 04
+50	mx_a, mx_b0, ld_pc, mx_pc0, clr_i, br 04
 -- NEG
 51	ALU_op_code0, ALU_op_code1, ALU_op_code2, ld_res, ld_flags, mx_res, br 89
 -- NOT
@@ -160,14 +160,14 @@
 6E	ALU_op_code0, ld_flags, br 89
 -- TEST
 6F	ALU_op_code1, ld_flags, br 89
--- DIV
+-- DIV	~done
 70	if (second_arg_zero) br 88
 71	ld_dx, mx_dx1, mx_dx0
 72	ALU_op_code0, ld_ax, mx_ax0, ld_flags, inc_dx
 73	if (!PSW_C) br 72
 74	dec_dx, ld_ax, mx_ax0
-75	ld_ax, ld_dx, mx_ax1, mx_dx1, br 89
--- LDV
+75	ld_ax, ld_dx, mx_ax1, mx_ax0, mx_dx1, br 89
+-- LDV	~done
 76	ld_dw_l, ld_dw_h, mx_dw0, mx_dw1, mx_dw2
 77	ld_res, br 89
 -- LDR
@@ -185,7 +185,7 @@
 82	mem_write, br 89
 -- MOV
 83	ALU_op_code1, ALU_op_code2, ld_res, mx_res
-84	ALI_op_code_0, ALU_op_code2, ld_res, mx_res, br 89
+84	ALU_op_code0, ALU_op_code2, ld_res, mx_res, br 89
 -- IN
 85	ld_ax, mx_ax0, mx_ax1, br 89
 -- OUT
@@ -217,4 +217,4 @@
 9C	ld_dw_l, inc_mar
 9D	ld_mdr
 9E	ld_dw_h
-9F	ld_pc, br 04
+9F	ld_pc, clr_i, br 04
