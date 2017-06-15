@@ -124,7 +124,7 @@ BEGIN
 	mdr_in <=	mem_out when mx_mdr = "00" else
 					dw_l_val when mx_mdr = "01" else
 					dw_h_val when mx_mdr = "10" else
-					rom_out when mx_mdr = "11";
+					rom_out;-- when mx_mdr = "11";
 	
 	rom_mem: ROM PORT MAP(addr => mar_val, dat_out => rom_out, clk => clk);
 	
@@ -143,7 +143,8 @@ BEGIN
 					BX_val(7 DOWNTO 0) when mx_dw = "100" else
 					CX_val(7 DOWNTO 0) when mx_dw = "101" else
 					DX_val(7 DOWNTO 0) when mx_dw = "110" else
-					imm_val(7 DOWNTO 0) when mx_dw = "111";
+					imm_val(7 DOWNTO 0) when mx_dw = "111" else
+					"00000000";
 
 	dw_h_in <= mdr_val when mx_dw = "000" else
 					PC_val(15 DOWNTO 8) when mx_dw = "001" else
@@ -152,12 +153,13 @@ BEGIN
 					BX_val(15 DOWNTO 8) when mx_dw = "100" else
 					CX_val(15 DOWNTO 8) when mx_dw = "101" else
 					DX_val(15 DOWNTO 8) when mx_dw = "110" else
-					imm_val(15 DOWNTO 8) when mx_dw = "111";
+					imm_val(15 DOWNTO 8) when mx_dw = "111" else
+					"00000000";
 	
 	mar_in <=	PC_adr when mx_mar = "00" else
 					IR_adr when mx_mar = "01" else
 					SP_adr when mx_mar = "10" else
-					ALU_adr when mx_mar = "11";
+					ALU_adr;-- when mx_mar = "11";
 	
 	mem: memory PORT MAP(wr => mem_write, addr => mar_val, dat_in => mdr_val, dat_out => mem_out, clk => clk);
 	mar: register16 PORT MAP(reg_in => mar_in, ld => ld_mar, inc => inc_mar, dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => mar_val);

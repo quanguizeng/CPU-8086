@@ -7,7 +7,8 @@ USE ieee.numeric_std.ALL;
 ENTITY CPU_8086 IS
 	PORT (
 		clk : IN STD_LOGIC;
-		Device_output : INOUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+		Device_output : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+		Device_input : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
 		
 		INT_req : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
 		
@@ -443,6 +444,22 @@ ARCHITECTURE description OF CPU_8086 IS
 		);
 	END COMPONENT FlipFlop;
 	 
+
+	COMPONENT register16
+		port(reg_in : IN STD_LOGIC_VECTOR(15 DOWNTO 0); -- input.
+		ld : IN STD_LOGIC; -- load/enable.
+		inc : IN STD_LOGIC; -- increment
+		dec : IN STD_LOGIC; -- decrement
+		clr : IN STD_LOGIC; -- async. clear.
+		clk : IN STD_LOGIC; -- clock.
+		shl : IN STD_LOGIC; -- shift left
+		r_bit : IN STD_LOGIC; -- new 0 bit after left shift
+		shr : IN STD_LOGIC; -- shift right
+		l_bit : IN STD_LOGIC; -- new 15 bit after right shift
+		reg_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+		);
+	END COMPONENT;
+	 
 -- SIGNALS --
 
 	-- BUS SIGNALS --
@@ -679,12 +696,12 @@ BEGIN
 
 		First_arg <=	"0" & IR_out(17 DOWNTO 16) when one_register_operand = '1' else
 							IR_out(18 DOWNTO 16) when (arlog = '1') or (load_store = '1') else
-							"000" when div = '1';
+							"000";-- when div = '1';
 
 		Second_arg <=	IR_out(15 DOWNTO 13) when (mov = '1') or (arlog_reg = '1') else
 							"0" & IR_out(17 DOWNTO 16) when (div_reg = '1') else
 							"111" when (arlog_imm = '1') or (div_imm = '1') or (LDV = '1') else
-							"101" when (one_register_operand = '1');
+							"101";-- when (one_register_operand = '1');
 							
 							
 		bus_b : BUS_block PORT MAP
@@ -868,7 +885,7 @@ BEGIN
 			changes_C => changes_C,
 			ld_C_in => ld_C,
 			immediateArg => IR_adr_or_imm,
-			device_in => DEVice_reg,
+			device_in => Device_input,
 			memoryIn => DW_out,
 			registerACtrl => mx_AX,
 			registerBCtrl => mx_BX,
@@ -1077,8 +1094,11 @@ BEGIN
 			clk => clk
 		);
 		
-		Device_reg <=	AX_out when Device_wr = '1' else
-							Device_reg when Device_wr = '0';
+		--Device_reg <=	AX_out when Device_wr = '1' else
+		--					Device_reg when Device_wr = '0' else
+		--					"0000000000000000";
+		
+		dev_reg : register16 PORT MAP(reg_in => AX_out, reg_out => Device_reg, ld => Device_wr, inc => '0', dec => '0', clr => '0', shl => '0', l_bit => '0', shr => '0', r_bit => '0', clk => clk);
 		
 		Device_output <= Device_reg;
 		

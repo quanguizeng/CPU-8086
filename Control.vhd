@@ -241,7 +241,8 @@ BEGIN
 	ld_dw_l <= mComand(62);
 	ld_dw_h <= mComand(61);
 	mx_dw <=	mComand(60 DOWNTO 58) when ld_dw_res = '0' else
-				STD_LOGIC_VECTOR(011 + unsigned(res_mx)) when ld_dw_res = '1';
+				STD_LOGIC_VECTOR(011 + unsigned(res_mx)) when ld_dw_res = '1' else
+				"000";
 	incSP <= mComand(57);
 	decSP <= mComand(56);
 	ld_PSW <= mComand(55);
@@ -342,7 +343,7 @@ BEGIN
 						'0';
 
 	case_branch <= '1' when branch_id = "00010111" else
-						'0' when not(branch_id = "00010111");
+						'0';-- when not(branch_id = "00010111");
 	
 	branch <= condition or case_branch;
 	
@@ -400,7 +401,8 @@ BEGIN
                         "10000011" when (case_branch = '1' and MOV = '1') else
                         "10000101" when (case_branch = '1' and IN_ins = '1') else
                         "10000110" when (case_branch = '1' and OUT_ins = '1') else
-                        "10000111" when (case_branch = '1');
+                        "10000111" when (case_branch = '1') else
+								"00000000";
 	
 	process(clk)
 	begin

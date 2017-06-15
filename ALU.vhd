@@ -26,6 +26,9 @@ architecture Behavior of ALU is
 	-- Temporary storage for addition
 	signal TempAdd: std_logic_vector(16 downto 0);
 	
+	-- Second argument for substraction
+	signal SecondSub: std_logic_vector(16 downto 0);
+	
 	-- Temporary storage for bottom nibble for BCD operations and adjust flag
 	signal Temp_Nibble: std_logic_vector(4 downto 0);
 	
@@ -64,8 +67,10 @@ begin
 	
 	TempAdd <=	std_logic_vector(unsigned("0" & expand_carry) + unsigned("0" & FirstArgument) + unsigned("0" & SecondArgument));
 	
+	SecondSub <= std_logic_vector(unsigned("0" & expand_carry) + unsigned("0" & SecondArgument));
+	
 	carry_val <=	TempAdd(16) when Operation = ADD_OP else
-						'1' when (Operation = SUB_OP and FirstArgument < SecondArgument) or (not (unsigned(TempMul(31 downto 16)) = 0) and Operation = MUL_OP) else
+						'1' when (Operation = SUB_OP and "0" & FirstArgument < SecondSub) or (not (unsigned(TempMul(31 downto 16)) = 0) and Operation = MUL_OP) else
 						FirstArgument(15) when Operation = SHL_OP else
 						FirstArgument(0) when Operation = SHR_OP else
 						'0';
@@ -87,9 +92,9 @@ begin
 							'1' when not(FirstArgument(15) = Result_val(15)) and (Operation = SHL_OP or Operation = SHR_OP) else
 							'0';
 	
-	Result_val <=	TempAdd(15downto 0) when Operation = ADD_OP else
-						std_logic_vector(unsigned(FirstArgument) - unsigned(SecondArgument)) when Operation = SUB_OP and FirstArgument >= SecondArgument else
-						std_logic_vector(unsigned(FirstArgument) + unsigned(not SecondArgument) + 1) when Operation = SUB_OP and FirstArgument < SecondArgument else
+	Result_val <=	TempAdd(15 downto 0) when Operation = ADD_OP else
+						std_logic_vector(unsigned(FirstArgument) - unsigned(SecondSub(15 DOWNTO 0))) when Operation = SUB_OP and "0" & FirstArgument >= SecondArgument else
+						std_logic_vector(unsigned(FirstArgument) + unsigned(not SecondSub(15 DOWNTO 0)) + 1) when Operation = SUB_OP and "0" & FirstArgument < SecondArgument else
 						FirstArgument and SecondArgument when Operation = AND_OP else
 						FirstArgument or SecondArgument when Operation = OR_OP else
 						FirstArgument xor SecondArgument when Operation = XOR_OP else

@@ -58,25 +58,11 @@ begin
     sp: register16 PORT MAP(reg_in => sp_input, ld => ld_sp, inc => inc_sp, dec => dec_sp, clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => sp_out);
     
 	 a <= ivtp_out when mx_a = '0' else
-			pc_out when mx_a = '1';
-	 
-    --case mx_a is
-    --  when "0" =>
-    --    a <= ivtp_out;
-    --  when "1" =>
-    --    a <= pc_out;
-    --end case;
+			pc_out;-- when mx_a = '1';
     
 	 b <= ivtdsp when mx_b = "00" else
 			IR(7 DOWNTO 0) & IR(15 DOWNTO 8) when mx_b = "01" else
-			"0000" & "000" & IR(15 DOWNTO 8) & "0" when mx_b = "11";
-	 
-    --case mx_b is
-    --  when "0" =>
-    --    b <= ivtdsp;
-    --  when "1" =>
-    --    pc_in <= IR(7 DOWNTO 0) & IR(15 DOWNTO 8);
-    --end case;
+			"0000" & "000" & IR(15 DOWNTO 8) & "0";-- when mx_b = "11";
 	 
 	 sp_input <= sp_in when mx_sp = '0' else ALU_res;
     

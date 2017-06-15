@@ -145,17 +145,17 @@
 66	ld_mar, mx_mar1, ld_mdr, mx_mdr0
 67	mem_write, br 89
 -- ADD
-68	ld_res, ld_flags, br 89
+68	ld_res, ld_flags, mx_res, br 89
 -- SUB
-69	ALU_op_code0, ld_res, ld_flags, br 89
+69	ALU_op_code0, ld_res, ld_flags, mx_res, br 89
 -- MUL
-6A	ALU_op_code0, ALU_op_code1, ALU_op_code3, ld_res, ld_flags, br 89
+6A	ALU_op_code0, ALU_op_code1, ALU_op_code3, ld_res, ld_flags, mx_res, br 89
 -- AND
-6B	ALU_op_code1, ld_res, ld_flags, br 89
+6B	ALU_op_code1, ld_res, ld_flags, mx_res, br 89
 -- OR
-6C	ALU_op_code0, ALU_op_code1, ld_res, ld_flags, br 89
+6C	ALU_op_code0, ALU_op_code1, ld_res, ld_flags, mx_res, br 89
 -- XOR
-6D	ALU_op_code2, ld_res, ld_flags, br 89
+6D	ALU_op_code2, ld_res, ld_flags, mx_res, br 89
 -- CMP
 6E	ALU_op_code0, ld_flags, br 89
 -- TEST
@@ -187,7 +187,7 @@
 83	ALU_op_code1, ALU_op_code2, ld_res, mx_res
 84	ALU_op_code0, ALU_op_code2, ld_res, mx_res, br 89
 -- IN
-85	ld_ax, mx_ax0, mx_ax1, br 89
+85	ld_ax, mx_ax1, br 89
 -- OUT
 86	ld_dev, br 89
 -- WRONG OP CODE

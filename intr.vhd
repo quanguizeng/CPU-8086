@@ -112,12 +112,14 @@ UEXT <=
 	"100" when interruptLines(4) = '1' else
 	"101" when interruptLines(5) = '1' else
 	"110" when interruptLines(6) = '1' else
-	"111" when interruptLines(7) = '1';
+	"111" when interruptLines(7) = '1' else
+	"000";
 	
 
 BR_ld <= ld_br;
 BR_reg_in <=	"0000000000000" & UEXT when mx_br = '0' else
-					br_in when mx_br = '1';
+					br_in when mx_br = '1' else
+					"0000000000000000";
 
 intrOffset <= "000000000000" & BR_reg_out(2 downto 0) & "0";
 IVTDisp <= intrOffset;

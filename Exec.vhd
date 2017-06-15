@@ -241,7 +241,7 @@ architecture ExecUnitImpl of ExecutionUnit is
 								SP_in when firstArgCtrl = "100" else
 								"0000000000000000" when firstArgCtrl = "101" else
 								immediateArg when firstArgCtrl = "111" else
-								"1111111111111111" when firstArgCtrl = "110";
+								"1111111111111111";-- when firstArgCtrl = "110";
 	
 	ALU_secondArgument <=	a_reg_out when secondArgCtrl = "000" else
 									b_reg_out when secondArgCtrl = "001" else
@@ -250,23 +250,23 @@ architecture ExecUnitImpl of ExecutionUnit is
 									SP_in when secondArgCtrl = "100" else
 									"0000000000000000" when secondArgCtrl = "101" else
 									immediateArg when secondArgCtrl = "111" else
-									"1111111111111111" when secondArgCtrl = "110";
+									"1111111111111111";-- when secondArgCtrl = "110";
 	
 	a_reg_in <=	memoryIn when registerACtrl = "00" else
 					ALU_Result when registerACtrl = "01" else
 					device_in when registerACtrl = "10" else
-					d_reg_out when registerACtrl = "11";
+					d_reg_out;-- when registerACtrl = "11";
 		
 	b_reg_in <=	memoryIn when registerBCtrl = '0' else
-					ALU_Result when registerBCtrl = '1';
+					ALU_Result;-- when registerBCtrl = '1';
 	
 	c_reg_in <=	memoryIn when registerCCtrl = '0' else
-					ALU_Result when registerCCtrl = '1';
+					ALU_Result;-- when registerCCtrl = '1';
 		
 	d_reg_in <=	memoryIn when registerDCtrl = "00" else
 					ALU_Result when registerDCtrl = "01" else
 					a_reg_out when registerDCtrl = "10" else
-					"0000" & "0000" & "0000" & "0000" when registerDCtrl = "11";
+					"0000" & "0000" & "0000" & "0000";-- when registerDCtrl = "11";
 	
 	Carry_In <=	'0' when carryInCtrl = "000" else -- 0
 					'1' when carryInCtrl = "001" else -- 1
@@ -275,7 +275,7 @@ architecture ExecUnitImpl of ExecutionUnit is
 					ALU_firstArgument(15) when carryInCtrl = "100" else -- Highest bit of the first argument. Used in rotations and arithmetic shifts
 					ALU_secondArgument(0) when carryInCtrl = "101" else -- Lowest bit of the second argument. Used in rotations
 					ALU_firstArgument(15) when carryInCtrl = "110" else -- Highest bit of the second argument. Used in rotations and arithmetic shifts
-					'1' when carryInCtrl = "111"; -- Placeholder
+					'1';-- when carryInCtrl = "111"; -- Placeholder
 		
 	-- changes Sign flag if the operation is supposed to change it, load signal is active and ALU flag is (in)active
 	f_stS <= changes_S and ld_S_in and ALU_Sign_Out;
@@ -305,6 +305,6 @@ architecture ExecUnitImpl of ExecutionUnit is
 	ALU_opCode <= operation;
 	
 	second_arg_zero <=	'1' when unsigned(ALU_secondArgument) = 0 else
-								'0' when not (unsigned(ALU_secondArgument) = 0);
+								'0';-- when not (unsigned(ALU_secondArgument) = 0);
 	
 	end ExecUnitImpl;

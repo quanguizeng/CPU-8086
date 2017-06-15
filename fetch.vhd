@@ -332,11 +332,11 @@ begin
     SAR <= SAR_inner;
     SAL <= SAL_inner;
     
-    carry <= ADD_inner or SUB_inner or MUL_inner or XOR_inner or AND_inner or OR_inner or NOT_inner or CLC_inner or STC_inner or CMP_inner or TEST_inner or RCL_inner or RCR_inner or ROL_inner or ROR_inner or SAHR_inner or SAR_inner or SAL_inner or SHL_inner or SHR_inner or DIV_inner;
-    overflow <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or XOR_inner or AND_inner or OR_inner or NOT_inner or CMP_inner or TEST_inner or RCL_inner or RCR_inner or ROL_inner or ROR_inner or SAHR_inner or SAR_inner or SAL_inner or SHL_inner or SHR_inner;
-    parity <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or XOR_inner or AND_inner or OR_inner or NOT_inner;
-    sign <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or NEG_inner or XOR_inner or AND_inner or OR_inner or NOT_inner;
-    zero <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or XOR_inner or AND_inner or OR_inner or NOT_inner or LOOP_inner or LOOPE_inner or LOOPNE_inner or DIV_inner;
+    carry <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or XOR_inner or AND_inner or OR_inner or CLC_inner or STC_inner or CMP_inner or TEST_inner or RCL_inner or RCR_inner or ROL_inner or ROR_inner or SAR_inner or SAL_inner or SHL_inner or SHR_inner or DIV_inner;
+    overflow <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or XOR_inner or AND_inner or OR_inner or CMP_inner or TEST_inner or RCL_inner or RCR_inner or ROL_inner or ROR_inner or SAR_inner or SAL_inner or SHL_inner or SHR_inner;
+    parity <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or XOR_inner or AND_inner or OR_inner or NOT_inner or CMP_inner or TEST_inner or RCL_inner or RCR_inner or ROL_inner or ROR_inner or SAR_inner or SHL_inner or SHR_inner;
+    sign <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or NEG_inner or XOR_inner or AND_inner or OR_inner or NOT_inner or CMP_inner or TEST_inner or RCL_inner or RCR_inner or ROL_inner or ROR_inner or SAR_inner or SHL_inner or SHR_inner or DIV_inner;
+    zero <= ADD_inner or SUB_inner or INC_inner or DEC_inner or MUL_inner or XOR_inner or AND_inner or OR_inner or NOT_inner or LOOP_inner or LOOPE_inner or LOOPNE_inner or DIV_inner or CMP_inner or TEST_inner or RCL_inner or RCR_inner or ROL_inner or ROR_inner or SAR_inner or SHL_inner or SHR_inner;
     
     pc: register16 PORT MAP(reg_in => pc_in, ld => ld_pc, inc => inc_pc, dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => pc_out);
 	ir0: register8 PORT MAP(reg_in => mdr_out, ld => ld_ir0, inc => '0', dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => ir0_out);
@@ -348,6 +348,7 @@ begin
 	
 	pc_in <= dw_out when mx_pc = "00" else
 				addr when mx_pc = "01" else
-				"0000001000000000" when mx_pc = "10";
+				"0000001000000000" when mx_pc = "10" else
+				"0000000000000000";
 
 end fetchImpl;
