@@ -56,7 +56,7 @@ ARCHITECTURE description OF BUS_block IS
 	COMPONENT memory IS
 		PORT (
 			wr : IN STD_LOGIC; -- write/ not(read)
-			addr : IN STD_LOGIC_VECTOR(15 DOWNTO 0); -- address
+			addr : IN STD_LOGIC_VECTOR(13 DOWNTO 0); -- address
 			dat_in  : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- data to write
 			dat_out : OUT STD_LOGIC_VECTOR(7 DOWNTO 0); -- read data
 			clk : IN STD_LOGIC -- clock
@@ -161,7 +161,7 @@ BEGIN
 					SP_adr when mx_mar = "10" else
 					ALU_adr;-- when mx_mar = "11";
 	
-	mem: memory PORT MAP(wr => mem_write, addr => mar_val, dat_in => mdr_val, dat_out => mem_out, clk => clk);
+	mem: memory PORT MAP(wr => mem_write, addr => mar_val(13 downto 0), dat_in => mdr_val, dat_out => mem_out, clk => clk);
 	mar: register16 PORT MAP(reg_in => mar_in, ld => ld_mar, inc => inc_mar, dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => mar_val);
 	mdr: register8 PORT MAP(reg_in => mdr_in, ld => ld_mdr, inc => '0', dec => '0', clr => '0', clk => clk, shl => '0', r_bit => '0', shr => '0', l_bit => '0', reg_out => mdr_val);
 	dw_l: register8 PORT MAP(reg_in => dw_l_in, ld => ld_dw_l, inc => '0', dec => '0', clr => '0', clk => clk, r_bit => '0', shr => '0', shl => '0', l_bit => '0', reg_out => dw_l_val);
