@@ -19,7 +19,7 @@
 -- exec
 0F	case
 -- HLT	~done
-10	cl_start, br 89
+10	cl_start, br 10
 --NOP	~done
 11	br 89
 -- IRET	~done
