@@ -24,10 +24,11 @@ BEGIN
 	reg_out <= reg_val;
 	process(clk, clr)
 	begin
-		if clr = '1' then 
-			reg_val <= x"00";
-		elsif rising_edge(clk) then
-			if ld = '1' then
+		
+		if rising_edge(clk) then
+			if clr = '1' then 
+				reg_val <= x"00";
+			elsif ld = '1' then
 				reg_val <= reg_in;
 			elsif inc = '1' then
 				reg_val <= STD_LOGIC_VECTOR( UNSIGNED(reg_val) + 1);

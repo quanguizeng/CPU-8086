@@ -44,25 +44,25 @@ signal perIntr: std_logic; -- Do we have an interrupt signal coming from pers
 signal UEXT: std_logic_vector(2 downto 0); -- Binary representation of the interrupt line
 
 signal IVTP_reg_in: std_logic_vector(15 downto 0);
-signal IVTP_ld: std_logic;
-signal IVTP_inc: std_logic;
-signal IVTP_dec: std_logic;
-signal IVTP_clr: std_logic;
-signal IVTP_shl: std_logic;
-signal IVTP_shr: std_logic;
-signal IVTP_r_bit: std_logic;
-signal IVTP_l_bit: std_logic;
+signal IVTP_ld: std_logic := '0';
+signal IVTP_inc: std_logic := '0';
+signal IVTP_dec: std_logic := '0';
+signal IVTP_clr: std_logic := '0';
+signal IVTP_shl: std_logic := '0';
+signal IVTP_shr: std_logic := '0';
+signal IVTP_r_bit: std_logic := '0';
+signal IVTP_l_bit: std_logic := '0';
 signal IVTP_reg_out: std_logic_vector(15 downto 0);
 
 signal BR_reg_in: std_logic_vector(15 downto 0);
-signal BR_ld: std_logic;
-signal BR_inc: std_logic;
-signal BR_dec: std_logic;
-signal BR_clr: std_logic;
-signal BR_shl: std_logic;
-signal BR_shr: std_logic;
-signal BR_r_bit: std_logic;
-signal BR_l_bit: std_logic;
+signal BR_ld: std_logic := '0';
+signal BR_inc: std_logic := '0';
+signal BR_dec: std_logic := '0';
+signal BR_clr: std_logic := '0';
+signal BR_shl: std_logic := '0';
+signal BR_shr: std_logic := '0';
+signal BR_r_bit: std_logic := '0';
+signal BR_l_bit: std_logic := '0';
 signal BR_reg_out: std_logic_vector(15 downto 0);
 
 signal intrOffset: std_logic_vector(15 downto 0); -- Offset of the interrupt routine

@@ -1,5 +1,5 @@
 # Constrain clock port clk with a 10-ns requirement
-create_clock -name clk -period 20 [get_ports {clk}]
+create_clock -name clk -period 41.667 [get_ports {clk}]
 
 # Automatically apply a generate clock on the output of phase-locked loops (PLLs)
 # derive_pll_clocks 

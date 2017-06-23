@@ -1115,6 +1115,6 @@ BEGIN
 		
 		dev_reg : register16 PORT MAP(reg_in => AX_out, reg_out => Device_reg, ld => Device_wr, inc => '0', dec => '0', clr => '0', shl => '0', l_bit => '0', shr => '0', r_bit => '0', clk => clk);
 		
-		Device_output <= Device_reg;
+		Device_output <= AX_out;
 		
 END description;
