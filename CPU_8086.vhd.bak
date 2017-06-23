@@ -8,9 +8,9 @@ ENTITY CPU_8086 IS
 	PORT (
 		clk : IN STD_LOGIC;
 		Device_output : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-		Device_input_reduced : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+		Device_input : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
 		
-		INT_req_reduced : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+		INT_req : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
 		
 		st_start : IN STD_LOGIC
 	);
@@ -574,8 +574,6 @@ ARCHITECTURE description OF CPU_8086 IS
 	SIGNAL First_arg : STD_LOGIC_VECTOR(2 DOWNTO 0);
 	SIGNAL Second_arg : STD_LOGIC_VECTOR(2 DOWNTO 0);
 	
-	SIGNAL Device_input : STD_LOGIC_VECTOR(15 DOWNTO 0);
-	
 	SIGNAL AX_out : std_logic_vector(15 downto 0);
 	SIGNAL BX_out : std_logic_vector(15 downto 0);
 	SIGNAL CX_out : std_logic_vector(15 downto 0);
@@ -585,7 +583,6 @@ ARCHITECTURE description OF CPU_8086 IS
 	-- END EXEC SIGNALS --
 	
 	-- INTR SIGNALS --
-	SIGNAL Int_req : std_logic_vector(7 downto 0);
 	
 	SIGNAL IVTP_out : STD_LOGIC_VECTOR(15 DOWNTO 0);
 	SIGNAL IVTDSP : STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -681,8 +678,6 @@ ARCHITECTURE description OF CPU_8086 IS
 	
 	-- OTHER SIGNALS --
 	SIGNAL START : STD_LOGIC;
-	
-	SIGNAL NEGATED_ST_START : STD_LOGIC;
 	SIGNAL cl_start : STD_LOGIC;
 	
 	SIGNAL init_sve : STD_LOGIC := '0';
@@ -691,22 +686,12 @@ ARCHITECTURE description OF CPU_8086 IS
 	SIGNAL ucitana_memorija : STD_LOGIC := '0';
 	
 	SIGNAL IR_adr_or_imm : STD_LOGIC_VECTOR(15 DOWNTO 0);
-	
-	SIGNAL helper_set : STD_LOGIC;
-	
-	SIGNAL first_FF_out : STD_LOGIC;
 	-- END OTHER SIGNALS --
 	
 -- END SIGNALS --
 BEGIN
-		Int_req <= Int_req_reduced & "0000" & "00";
-		Device_input <= "0000" & "0000" & Device_input_reduced;
-		NEGATED_ST_START <= not st_start;
 		IR_adr_or_imm <= IR_out(7 DOWNTO 0) & IR_out(15 DOWNTO 8);
-		
-		helper_set <= first_FF_out and (not NEGATED_ST_START) and not HLT;
-		start_ff : FlipFlop PORT MAP(set => NEGATED_ST_START, clr => cl_start, sig_out => first_FF_out, clk => clk);
-		start_ff_helper : FlipFlop PORT MAP(set => helper_set, clr => cl_start, sig_out => START, clk => clk);
+		start_ff : FlipFlop PORT MAP(set => st_start, clr => cl_start, sig_out => START, clk => clk);
 		init_ff : FlipFlop PORT MAP(set => '1', clr => '0', clk => clk, sig_out => init_sve);
 
 		First_arg <=	"0" & IR_out(17 DOWNTO 16) when one_register_operand = '1' else
@@ -1115,6 +1100,6 @@ BEGIN
 		
 		dev_reg : register16 PORT MAP(reg_in => AX_out, reg_out => Device_reg, ld => Device_wr, inc => '0', dec => '0', clr => '0', shl => '0', l_bit => '0', shr => '0', r_bit => '0', clk => clk);
 		
-		Device_output <= AX_out;
+		Device_output <= Device_reg;
 		
 END description;

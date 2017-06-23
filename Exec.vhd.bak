@@ -66,46 +66,46 @@ architecture ExecUnitImpl of ExecutionUnit is
 	
 	signal a_reg_in: std_logic_vector(15 downto 0);
 	signal a_ld: std_logic;
-	signal a_inc: std_logic := '0';
-	signal a_dec: std_logic := '0';
-	signal a_clr: std_logic := '0';
-	signal a_shl: std_logic := '0';
-	signal a_r_bit: std_logic := '0';
-	signal a_shr: std_logic := '0';
-	signal a_l_bit: std_logic := '0';
+	signal a_inc: std_logic;
+	signal a_dec: std_logic;
+	signal a_clr: std_logic;
+	signal a_shl: std_logic;
+	signal a_r_bit: std_logic;
+	signal a_shr: std_logic;
+	signal a_l_bit: std_logic;
 	signal a_reg_out: std_logic_vector(15 downto 0);
 	
 	signal b_reg_in: std_logic_vector(15 downto 0);
-	signal b_ld: std_logic := '0';
-	signal b_inc: std_logic := '0';
-	signal b_dec: std_logic := '0';
-	signal b_clr: std_logic := '0';
-	signal b_shl: std_logic := '0';
-	signal b_r_bit: std_logic := '0';
-	signal b_shr: std_logic := '0';
-	signal b_l_bit: std_logic := '0';
+	signal b_ld: std_logic;
+	signal b_inc: std_logic;
+	signal b_dec: std_logic;
+	signal b_clr: std_logic;
+	signal b_shl: std_logic;
+	signal b_r_bit: std_logic;
+	signal b_shr: std_logic;
+	signal b_l_bit: std_logic;
 	signal b_reg_out: std_logic_vector(15 downto 0);
 	
 	signal c_reg_in: std_logic_vector(15 downto 0);
-	signal c_ld: std_logic := '0';
-	signal c_inc: std_logic := '0';
-	signal c_dec: std_logic := '0';
-	signal c_clr: std_logic := '0';
-	signal c_shl: std_logic := '0';
-	signal c_r_bit: std_logic := '0';
-	signal c_shr: std_logic := '0';
-	signal c_l_bit: std_logic := '0';
+	signal c_ld: std_logic;
+	signal c_inc: std_logic;
+	signal c_dec: std_logic;
+	signal c_clr: std_logic;
+	signal c_shl: std_logic;
+	signal c_r_bit: std_logic;
+	signal c_shr: std_logic;
+	signal c_l_bit: std_logic;
 	signal c_reg_out: std_logic_vector(15 downto 0);
 	
 	signal d_reg_in: std_logic_vector(15 downto 0);
-	signal d_ld: std_logic := '0';
-	signal d_inc: std_logic := '0';
-	signal d_dec: std_logic := '0';
-	signal d_clr: std_logic := '0';
-	signal d_shl: std_logic := '0';
-	signal d_r_bit: std_logic := '0';
-	signal d_shr: std_logic := '0';
-	signal d_l_bit: std_logic := '0';
+	signal d_ld: std_logic;
+	signal d_inc: std_logic;
+	signal d_dec: std_logic;
+	signal d_clr: std_logic;
+	signal d_shl: std_logic;
+	signal d_r_bit: std_logic;
+	signal d_shr: std_logic;
+	signal d_l_bit: std_logic;
 	signal d_reg_out: std_logic_vector(15 downto 0);
 	
 	signal f_stS: std_logic;
@@ -117,12 +117,12 @@ architecture ExecUnitImpl of ExecutionUnit is
 	signal f_stC: std_logic;
 	signal f_stO: std_logic;
 	signal f_clC: std_logic;
-	signal f_stT: std_logic := '0';
-	signal f_clT: std_logic := '0';
+	signal f_stT: std_logic;
+	signal f_clT: std_logic;
 	signal f_stI: std_logic;
 	signal f_clI: std_logic;
 	signal f_clO: std_logic;
-	signal f_ldFlags: std_logic := '0';
+	signal f_ldFlags: std_logic;
 	signal f_FlagsIn: std_logic_vector(15 downto 0);
 	signal f_FlagsOut: std_logic_vector(15 downto 0);
 	
@@ -216,10 +216,6 @@ architecture ExecUnitImpl of ExecutionUnit is
 		port map(clk, f_stS, f_clS, f_stZ, f_clZ, f_stP, f_clP, f_stC, f_clC, f_stO, f_clO, f_stT, f_clT, f_stI, f_clI, f_ldFlags, f_FlagsIn, f_FlagsOut);
 	ALUCom: ALU
 		port map(ALU_firstArgument, ALU_secondArgument, ALU_opCode, ALU_Carry_In, ALU_Carry_Out, ALU_Parity_Out, ALU_Adjust_Out, ALU_Overflow_Out, ALU_Zero_Out, ALU_Sign_Out, ALU_Result);
-	
-	f_ldFlags <= ld_Flags;
-	f_flagsIn <= flags_in;
-	flags_out <= f_flagsOut;
 	
 	AX_out <= a_reg_out;
 	BX_out <= b_reg_out;
